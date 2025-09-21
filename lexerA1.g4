@@ -1,9 +1,156 @@
 lexer grammar lexerA1;
 
-// Literals
-IntigerLiteral: ;
+// UNICODE  --------------------------------------------------------------------------------------------------------------
+UnicodeInputCharacter: UnicodeEscape | RawInputCharacter;
 
-FloatingPointLiteral: ;
+fragement UnicodeEscape:
+    '\\' UnicodeMarker HexDigit HexDigit HexDigit HexDigit;
+
+fragment UnicodeMarker:
+    'u' | UnicodeMarker 'u';
+
+fragment RawInputCharacter:;
+    //not complete need to ask question from prof.
+
+// LINE TERMINATORS  -----------------------------------------------------------------------------------------------------------------------
+LineTerminator: '\n' | '\r' | '\r\n';
+
+InputCharacter: [^\n\r];
+
+//WHITE SPACE  ----------------------------------------------------------------------------------------------------------------------------------------
+WhiteSpace: ' ' | '\t' | '\f' | LineTerminator;
+
+//COMMENTS  --------------------------------------------------------------------------------------------------------------------------------------------------
+Comment: TraditionalComment | EndOfLineComment;
+
+fragment TraditionalComment:
+    '/*' NotStar CommentTail;
+
+fragment EndOfLineComment:
+    '//' CharactersInLine? LineTerminator;
+
+fragment CommentTail:
+    '*' CommentTailStar | NotStar | CommentTail;
+
+fragment CommentTailStar:
+    '/' | '*' CommentTailStar | NotStarNotSlash CommentTail;
+
+fragment NotStar:
+    [^*] | LineTerminator;
+
+fragment NotStarNotSlash:
+    [^*/] | LineTerminator;
+
+fragment CharactersInLine:
+    InputCharacter | CharactersInLine InputCharacter;
+
+
+
+// KEYWORDS  --------------------------------------------------------------------------------------------------------
+Abstract: 'abstract';
+Boolean: 'boolean';
+Break: 'break';
+Byte: 'byte';
+Case: 'case';
+Catch: 'catch';
+Char: 'char';
+Class: 'class';
+Const: 'const';
+Continue: 'continue';
+Default: 'default';
+Do: 'do';
+Double: 'double';
+Else: 'else';
+Extends: 'extends';
+Final: 'final';
+Finally: 'finally';
+Float: 'float';
+For: 'for';
+Goto: 'goto';
+If: 'if';
+Implements: 'implements';
+Import: 'import';
+InstanceOf: 'instanceof';
+Int: 'int';
+Interface: 'interface';
+Long: 'long';
+Native: 'native';
+New: 'new';
+Package: 'package';
+Private: 'private';
+Protected: 'protected';
+Public: 'public';
+Return: 'return';
+Short: 'short';
+Static: 'static';
+Strictfp: 'strictfp';
+Super: 'super';
+Switch: 'switch';
+Synchronized: 'synchronized';
+This: 'this';
+Throw: 'throw';
+Throws: 'throws';
+Transient: 'transient';
+Try: 'try';
+Void: 'void';
+Volatile: 'volatile';
+While: 'while';
+
+// LITERALS  -------------------------------------------------------------------------------------------------------------------
+IntigerLiteral: DecimalIntegerLiteral | HexIntegerLiteral | OctalIntegerLiteral;
+
+fragment DecimalIntegerLiteral:
+    DecimalNumeral IntegerTypeSuffix?;
+
+fragment HexIntegerLiteral:
+    HexNumeral IntegerTypeSuffix?;
+
+fragment OctalIntegerLiteral:
+    OctalNumeral IntegerTypeSuffix?;
+
+fragment IntegerTypeSuffix:
+    [lL];
+
+fragment DecimalNumeral:
+    '0' | NonZeroDigit Digits?;
+
+fragment HexNumeral:
+    '0' 'x' HexDigits | '0' 'X' HexDigits;
+
+fragment HexDigits:
+    HexDigit | HexDigit HexDigits;
+
+fragment HexDigit:
+    [0-9a-fA-F];
+
+FloatingPointLiteral: Digits '.' Digits? ExponentPart? FloatTypeSuffix?
+                     | '.' Digits ExponentPart? FloatTypeSuffix?
+                     | Digits ExponentPart FloatTypeSuffix?
+                     | Digits ExponentPart? FloatTypeSuffix;
+
+fragment ExponentPart:
+    ExponentIndicator SignedInteger;
+
+fragment ExponentIndicator:
+    [eE];
+
+fragment SignedInteger:
+    Sign? Digits;
+
+fragment Digits:
+    Digit+;
+
+fragment Digit:
+    '0' | NonZeroDigit;
+
+fragment NonZeroDigit:
+    [1-9];
+
+fragment Sign:
+    [+-];
+
+fragment FloatTypeSuffix:
+    [fFdD];
 
 CharacterLiteral: '\'' SingleCharacter '\'' | '\'' EscapeSequence '\'';
 
@@ -16,13 +163,19 @@ fragment StringCharacters:
     StringCharacter+;
 
 fragment StringCharacter:
-    [^"\\] | EscapeSequence;
+    SingleCharacter | EscapeSequence;
 
 fragment EscapeSequence:
     '\\' ('u0008' | 'u0009' | 'u000a' | 'u000c' | 'u000d' | 'u0022' | 'u0027' | 'u005c' | OctalEscape);
 
 fragment OctalEscape:
     '\\' OctalDigit | '\\' OctalDigit OctalDigit | '\\' ZeroToThree OctalDigit OctalDigit;
+
+fragment OctalNumeral:
+    '0' OctalDigits;
+
+fragment OctalDigits:
+    OctalDigit | OctalDigit | OctalDigits;
 
 fragment OctalDigit:
     [0-7];
@@ -33,16 +186,63 @@ fragment ZeroToThree:
 BooleanLiteral: 'true' | 'false' ;
 
 NullLiteral: 'null';
-// Keywords
-Public : 'public';
-Protected: 'protected';
-Private: 'private';
-Static: 'static';
-Abstract: 'abstract';
-Final: 'final';
-Native: 'native';
-Synchronized: 'synchronized';
-Transient: 'transient';
-Volatile: 'volatile';
-Strictfp: 'strictfp';
-Assert: 'Assert';
+
+//SEPRATORS  -------------------------------------------------------------------------------------------------------------------------
+ParanthesesLeft: '(';
+ParanthesesRight: ')';
+CurlyBracketLeft: '{';
+CurlyBracketRight: '}';
+SquareBracketLeft: '[';
+SquareBracketRight: ']';
+Semicolon: ';';
+Comma: ',';
+Dot: '.';
+
+//OPERATORS  ---------------------------------------------------------------------------------------------------------------------------------------
+Assignment: '=';
+GreterThan: '>';
+LessThan: '<';
+LogicalComplement: '!';
+BitwiseComplement: '~';
+Question: '?';
+Colon: ':';
+EqualTo: '==';
+LessThanEqualTo: '<=';
+GreaterThanEqualTo: '>=';
+NotEqualTO: '!=';
+ConditionalAND: '&&';
+ConditionalOR: '||';
+Increment: '++';
+Decrement: '--';
+Addition: '+';
+Subtaction: '-';
+Multiplication: '*';
+Division: '/';
+BitwiseAND: '&';
+BitwiseOR: '|';
+BitwiseXOR: '^';
+Remainder: '%';
+LeftShift: '<<';
+SignedRightShift: '>>';
+UnsignedRightShift: '>>>';
+AddAssign: '+=';
+SubtractAssign: '-=';
+MultiplyAssign: '*=';
+DivideAssign: '/=';
+BitwiseANDAssign: '&=';
+BitwiseORAssign: '|=';
+BitwiseXORAssign: '^=';
+RemainderAssign: '%=';
+LeftShiftAssign: '<<=';
+SighnedRightShiftAssign: '>>=';
+UnsighnedRightShiftAssign: '>>>=';
+
+
+//IDENTIFIERS  -------------------------------------------------------------------------------------------------------------------------------------------
+Identifier: JavaLetter JavaLetterOrDigit;
+
+fragment JavaLetter:
+    [a-zA-Z_$];
+
+fragment JavaLetterOrDigit:
+    JavaLetter | [0-9];
