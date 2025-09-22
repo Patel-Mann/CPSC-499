@@ -48,6 +48,7 @@ fragment CharactersInLine:
 
 // KEYWORDS  --------------------------------------------------------------------------------------------------------
 Abstract: 'abstract';
+Assert: 'assert';
 Boolean: 'boolean';
 Break: 'break';
 Byte: 'byte';
