@@ -1,13 +1,12 @@
-lexer grammar lexerA1;
+lexer grammar ExprLexer;
 
 // UNICODE  --------------------------------------------------------------------------------------------------------------
 UnicodeInputCharacter: UnicodeEscape | RawInputCharacter;
 
-fragement UnicodeEscape:
-    '\\' UnicodeMarker HexDigit HexDigit HexDigit HexDigit;
+fragment UnicodeEscape: '\\' UnicodeMarker HexDigit HexDigit HexDigit HexDigit;
 
-fragment UnicodeMarker:
-    'u' | UnicodeMarker 'u';
+fragment UnicodeMarker: 'u'+;
+
 
 fragment RawInputCharacter:;
     //not complete need to ask question from prof.
@@ -29,8 +28,7 @@ fragment TraditionalComment:
 fragment EndOfLineComment:
     '//' CharactersInLine? LineTerminator;
 
-fragment CommentTail:
-    '*' CommentTailStar | NotStar | CommentTail;
+fragment CommentTail: '*' CommentTailStar | NotStar ;
 
 fragment CommentTailStar:
     '/' | '*' CommentTailStar | NotStarNotSlash CommentTail;
@@ -41,8 +39,8 @@ fragment NotStar:
 fragment NotStarNotSlash:
     [^*/] | LineTerminator;
 
-fragment CharactersInLine:
-    InputCharacter | CharactersInLine InputCharacter;
+fragment CharactersInLine: InputCharacter
+                         | InputCharacter;
 
 
 
@@ -176,7 +174,7 @@ fragment OctalNumeral:
     '0' OctalDigits;
 
 fragment OctalDigits:
-    OctalDigit | OctalDigit | OctalDigits;
+    OctalDigit;
 
 fragment OctalDigit:
     [0-7];
