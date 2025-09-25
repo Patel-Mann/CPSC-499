@@ -1,34 +1,30 @@
-// Comprehensive Java Grammar Reference File
-// This file demonstrates most Java language constructs and grammar features
+// Java 1.4 Grammar Reference File
+// This file demonstrates Java language constructs available in Java 1.4
 
 // 1. Package declaration
 package com.example.grammar;
 
 // 2. Import statements
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.*;
 import java.io.*;
-import java.nio.file.*;
-import static java.lang.Math.*;
-import static java.util.Collections.sort;
+import java.net.*;
 
 /**
  * 3. Class-level documentation comment
- * Comprehensive Java grammar demonstration class
+ * Java 1.4 grammar demonstration class
  */
-public class JavaGrammarReference {
+public class Java14GrammarReference {
 
     // 4. Class-level fields with various modifiers
     public static final String CONSTANT = "CONSTANT_VALUE";
     private static int staticCounter = 0;
     protected volatile boolean flag = false;
     transient String transientField;
-    final List<String> finalList = new ArrayList<>();
+    final Vector finalVector = new Vector();
 
     // 5. Instance initializer block
     {
-        finalList.add("initialized");
+        finalVector.addElement("initialized");
         System.out.println("Instance initializer executed");
     }
 
@@ -39,11 +35,11 @@ public class JavaGrammarReference {
     }
 
     // 7. Constructors
-    public JavaGrammarReference() {
+    public Java14GrammarReference() {
         this("default");
     }
 
-    public JavaGrammarReference(String value) {
+    public Java14GrammarReference(String value) {
         super(); // Call to superclass constructor
         this.transientField = value;
     }
@@ -53,7 +49,7 @@ public class JavaGrammarReference {
         System.out.println("Basic method");
     }
 
-    private static synchronized <T> T genericMethod(T parameter) {
+    private static synchronized Object genericMethod(Object parameter) {
         return parameter;
     }
 
@@ -65,10 +61,10 @@ public class JavaGrammarReference {
 
     public native void nativeMethod(); // Native method declaration
 
-    // 9. Method with varargs
-    public void varargsMethod(String... args) {
-        for (String arg : args) {
-            System.out.println(arg);
+    // 9. Method with array parameter (varargs not available in 1.4)
+    public void arrayMethod(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            System.out.println(args[i]);
         }
     }
 
@@ -91,28 +87,19 @@ public class JavaGrammarReference {
         int[][] twoDArray = {{1, 2}, {3, 4}};
         String[] stringArray = {"one", "two", "three"};
 
-        // 13. Object creation
-        JavaGrammarReference obj = new JavaGrammarReference("example");
-        List<String> list = new ArrayList<>();
-        Map<String, Integer> map = new HashMap<>();
+        // 13. Object creation (using pre-1.5 collections)
+        Java14GrammarReference obj = new Java14GrammarReference("example");
+        Vector vector = new Vector();
+        Hashtable hashtable = new Hashtable();
 
         // 14. Anonymous class
         Runnable anonymousClass = new Runnable() {
-            @Override
             public void run() {
                 System.out.println("Anonymous class method");
             }
         };
 
-        // 15. Lambda expressions
-        Runnable lambda = () -> System.out.println("Lambda expression");
-        Function<String, Integer> stringToInt = Integer::parseInt;
-        Consumer<String> printer = System.out::println;
-
-        // 16. Method references
-        list.forEach(System.out::println);
-
-        // 17. Conditional statements
+        // 15. Conditional statements
         if (bool) {
             System.out.println("If statement");
         } else if (i > 0) {
@@ -121,10 +108,10 @@ public class JavaGrammarReference {
             System.out.println("Else statement");
         }
 
-        // 18. Ternary operator
+        // 16. Ternary operator
         String result = (i > 0) ? "positive" : "non-positive";
 
-        // 19. Switch statement (traditional)
+        // 17. Switch statement
         switch (c) {
             case 'A':
                 System.out.println("Case A");
@@ -137,22 +124,21 @@ public class JavaGrammarReference {
                 System.out.println("Default case");
         }
 
-        // 20. Switch expression (Java 14+)
-        String dayType = switch (i % 7) {
-            case 1, 2, 3, 4, 5 -> "Weekday";
-            case 6, 7 -> "Weekend";
-            default -> "Unknown";
-        };
-
-        // 21. Loops
+        // 18. Loops
         // For loop
         for (int j = 0; j < 10; j++) {
             System.out.println("For loop: " + j);
         }
 
-        // Enhanced for loop (for-each)
-        for (String element : stringArray) {
-            System.out.println("Enhanced for: " + element);
+        // Traditional iteration (no enhanced for loop in 1.4)
+        for (int k = 0; k < stringArray.length; k++) {
+            System.out.println("Array iteration: " + stringArray[k]);
+        }
+
+        // Iterator usage
+        Iterator iterator = vector.iterator();
+        while (iterator.hasNext()) {
+            System.out.println("Iterator: " + iterator.next());
         }
 
         // While loop
@@ -168,7 +154,7 @@ public class JavaGrammarReference {
             counter--;
         } while (counter > 0);
 
-        // 22. Exception handling
+        // 19. Exception handling
         try {
             int division = 10 / 0;
         } catch (ArithmeticException e) {
@@ -179,23 +165,32 @@ public class JavaGrammarReference {
             System.out.println("Finally block executed");
         }
 
-        // 23. Try-with-resources
-        try (FileInputStream fis = new FileInputStream("test.txt");
-             BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-            String line = br.readLine();
+        // 20. Manual resource management (no try-with-resources in 1.4)
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream("test.txt");
+            // Use the stream
         } catch (IOException e) {
-            System.out.println("IO Exception in try-with-resources");
+            System.out.println("IO Exception");
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    System.out.println("Error closing stream");
+                }
+            }
         }
 
-        // 24. Assertions
+        // 21. Assertions (introduced in 1.4)
         assert i > 0 : "i should be positive";
 
-        // 25. Synchronized block
+        // 22. Synchronized block
         synchronized (obj) {
             System.out.println("Synchronized block");
         }
 
-        // 26. Operators
+        // 23. Operators
         // Arithmetic operators
         int sum = i + b;
         int difference = i - b;
@@ -238,37 +233,27 @@ public class JavaGrammarReference {
         int rightShift = i >> 2;
         int unsignedRightShift = i >>> 2;
 
-        // 27. instanceof operator
-        if (obj instanceof JavaGrammarReference) {
-            System.out.println("obj is instance of JavaGrammarReference");
+        // 24. instanceof operator
+        if (obj instanceof Java14GrammarReference) {
+            System.out.println("obj is instance of Java14GrammarReference");
         }
 
-        // 28. Type casting
+        // 25. Type casting
         double castToDouble = (double) i;
         int castToInt = (int) d;
+        Object objCast = (Object) str;
+        String strCast = (String) objCast;
 
-        // 29. Generics
-        List<Integer> integerList = new ArrayList<Integer>();
-        Map<String, List<Integer>> complexGeneric = new HashMap<>();
-
-        // 30. Wildcards
-        List<? extends Number> wildcardList = new ArrayList<Integer>();
-        List<? super Integer> superWildcard = new ArrayList<Number>();
-
-        // 31. Annotations usage
-        @SuppressWarnings("unchecked")
-        List rawList = new ArrayList();
-
-        // 32. Method calls and chaining
+        // 26. Method calls and chaining
         obj.basicMethod();
         str.toUpperCase().toLowerCase().trim();
 
-        // 33. Access to nested classes
+        // 27. Access to nested classes
         OuterClass.NestedClass nested = new OuterClass.NestedClass();
         OuterClass outer = new OuterClass();
         OuterClass.InnerClass inner = outer.new InnerClass();
 
-        // 34. Local class
+        // 28. Local class
         class LocalClass {
             void localMethod() {
                 System.out.println("Local class method");
@@ -276,9 +261,26 @@ public class JavaGrammarReference {
         }
         LocalClass localObj = new LocalClass();
         localObj.localMethod();
+
+        // 29. Working with collections (pre-generics)
+        vector.addElement("string1");
+        vector.addElement(new Integer(42));
+
+        hashtable.put("key1", "value1");
+        hashtable.put("key2", new Integer(100));
+
+        // Manual casting required
+        String retrievedString = (String) hashtable.get("key1");
+        Integer retrievedInt = (Integer) hashtable.get("key2");
+
+        // 30. Enumeration usage
+        Enumeration enumeration = vector.elements();
+        while (enumeration.hasMoreElements()) {
+            System.out.println("Enumeration: " + enumeration.nextElement());
+        }
     }
 
-    // 35. Nested classes
+    // 31. Nested classes
     static class NestedClass {
         private String nestedField = "nested";
 
@@ -294,34 +296,7 @@ public class JavaGrammarReference {
         }
     }
 
-    // 36. Enum declaration
-    public enum Status {
-        ACTIVE("Active Status"),
-        INACTIVE("Inactive Status"),
-        PENDING("Pending Status");
-
-        private final String description;
-
-        Status(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        // Enum with methods
-        public static Status fromString(String text) {
-            for (Status status : Status.values()) {
-                if (status.description.equalsIgnoreCase(text)) {
-                    return status;
-                }
-            }
-            return null;
-        }
-    }
-
-    // 37. Interface declaration
+    // 32. Interface declaration
     public interface SampleInterface {
         // Interface fields (implicitly public static final)
         String INTERFACE_CONSTANT = "interface constant";
@@ -329,133 +304,97 @@ public class JavaGrammarReference {
         // Abstract method (implicitly public abstract)
         void abstractInterfaceMethod();
 
-        // Default method (Java 8+)
-        default void defaultMethod() {
-            System.out.println("Default interface method");
+        // Only abstract methods allowed in interfaces in Java 1.4
+        String processData(Object data);
+    }
+
+    // 33. Interface implementation
+    public class InterfaceImplementation implements SampleInterface {
+        public void abstractInterfaceMethod() {
+            System.out.println("Implementing abstract interface method");
         }
 
-        // Static method in interface (Java 8+)
-        static void staticInterfaceMethod() {
-            System.out.println("Static interface method");
-        }
-
-        // Private method in interface (Java 9+)
-        private void privateHelperMethod() {
-            System.out.println("Private interface method");
+        public String processData(Object data) {
+            return data.toString().toUpperCase();
         }
     }
 
-    // 38. Functional interface
-    @FunctionalInterface
-    public interface CustomFunctionalInterface<T> {
-        T process(T input);
+    // 34. Abstract class
+    public abstract class AbstractClass {
+        protected String abstractField = "abstract field";
 
-        default void defaultProcessing() {
-            System.out.println("Default processing");
+        // Concrete method in abstract class
+        public void concreteMethod() {
+            System.out.println("Concrete method in abstract class");
+        }
+
+        // Abstract method
+        public abstract void abstractMethod();
+
+        // Final method cannot be overridden
+        public final void finalMethod() {
+            System.out.println("Final method in abstract class");
         }
     }
 
-    // 39. Record declaration (Java 14+)
-    public record Person(String name, int age, String email) {
-        // Compact constructor
-        public Person {
-            if (age < 0) {
-                throw new IllegalArgumentException("Age cannot be negative");
-            }
+    // 35. Extending abstract class
+    public class ConcreteClass extends AbstractClass {
+        public void abstractMethod() {
+            System.out.println("Implementing abstract method");
         }
 
-        // Additional constructor
-        public Person(String name, int age) {
-            this(name, age, "unknown@example.com");
-        }
-
-        // Instance method in record
-        public boolean isAdult() {
-            return age >= 18;
-        }
-
-        // Static method in record
-        public static Person createDefault() {
-            return new Person("Unknown", 0);
+        // Overriding concrete method
+        public void concreteMethod() {
+            super.concreteMethod(); // Call parent method
+            System.out.println("Overridden concrete method");
         }
     }
 
-    // 40. Text blocks (Java 15+)
-    public static final String TEXT_BLOCK = """
-        This is a text block
-        that can span multiple lines
-        and preserves formatting
-        """;
-
-    // 41. Pattern matching for instanceof (Java 16+)
-    public static void patternMatchingExample(Object obj) {
-        if (obj instanceof String s) {
-            System.out.println("String length: " + s.length());
-        } else if (obj instanceof Integer i) {
-            System.out.println("Integer value: " + i);
-        }
-    }
-
-    // 42. Sealed class declaration (Java 17+)
-    public abstract sealed class Shape
-            permits Circle, Rectangle, Triangle {
-        abstract double area();
-    }
-
-    public final class Circle extends Shape {
-        private final double radius;
-
-        public Circle(double radius) {
-            this.radius = radius;
-        }
-
-        @Override
-        double area() {
-            return PI * radius * radius;
-        }
-    }
-
-    public final class Rectangle extends Shape {
-        private final double width, height;
-
-        public Rectangle(double width, double height) {
-            this.width = width;
-            this.height = height;
-        }
-
-        @Override
-        double area() {
-            return width * height;
-        }
-    }
-
-    public non-sealed class Triangle extends Shape {
-        private final double base, height;
-
-        public Triangle(double base, double height) {
-            this.base = base;
-            this.height = height;
-        }
-
-        @Override
-        double area() {
-            return 0.5 * base * height;
-        }
-    }
-
-    // 43. Method with complex generic bounds
-    public static <T extends Comparable<T> & Serializable> void complexGenericMethod(T item) {
-        System.out.println("Complex generic method: " + item);
-    }
-
-    // 44. Method demonstrating all access modifiers
+    // 36. Method with all access modifiers
     public void publicMethod() { }
     protected void protectedMethod() { }
     void packagePrivateMethod() { }
     private void privateMethod() { }
 
-    // 45. Method with all possible modifiers
+    // 37. Method with all possible modifiers available in 1.4
     public static final synchronized strictfp void methodWithAllModifiers() {
         System.out.println("Method with multiple modifiers");
+    }
+
+    // 38. Methods demonstrating method overloading
+    public void overloadedMethod(int parameter) {
+        System.out.println("Integer parameter: " + parameter);
+    }
+
+    public void overloadedMethod(String parameter) {
+        System.out.println("String parameter: " + parameter);
+    }
+
+    public void overloadedMethod(int param1, String param2) {
+        System.out.println("Multiple parameters: " + param1 + ", " + param2);
+    }
+
+    // 39. Method demonstrating all primitive parameter types
+    public void primitiveParameters(boolean b, byte bt, short s, int i,
+                                    long l, float f, double d, char c) {
+        System.out.println("All primitive types as parameters");
+    }
+
+    // 40. Method demonstrating array parameters
+    public void arrayParameters(int[] intArray, String[] stringArray,
+                                Object[] objectArray) {
+        System.out.println("Array parameters method");
+    }
+
+    // 41. Method with throws clause
+    public void methodWithExceptions() throws IOException,
+            IllegalArgumentException {
+        throw new IOException("Example exception");
+    }
+
+    // 42. Finalize method
+    protected void finalize() throws Throwable {
+        super.finalize();
+        System.out.println("Finalizing object");
     }
 }
