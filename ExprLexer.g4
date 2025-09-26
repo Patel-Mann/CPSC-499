@@ -208,7 +208,7 @@ Colon: ':';
 EqualTo: '==';
 LessThanEqualTo: '<=';
 GreaterThanEqualTo: '>=';
-NotEqualTO: '!=';
+NotEqualTo: '!=';
 ConditionalAND: '&&';
 ConditionalOR: '||';
 Increment: '++';
