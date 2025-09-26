@@ -34,3 +34,93 @@ exp: define
 define :  Int ID EQL INTE;
 arraydef: SqLPAREN (data T)* SqRPAREN;
 data: STRING ;
+
+
+//TODO: sections 4 to 9
+
+//Primitive Types
+type:
+    primitiveType dims? //Handle int[] or just int
+    |name dims?;
+
+primitiveType:
+    primitiveNumericType
+    |Boolean;
+
+primitiveNumericType:
+    primitiveIntegralType
+    |primitiveFloatingPointType;
+
+primitiveIntegralType:
+    Byte
+    |Short
+    |Int
+    |Long
+    |Char;
+
+primitiveFloatingPointType:
+    Float
+    |Double;
+
+dims:
+    (LBracket RBracket)*;
+
+name:
+    Identifier (Dot Identifier)*;
+// Operators 15.20 Relational Operators
+relationalExpression:
+    shiftExpression
+    |relationalExpression LessThan ShiftExpression
+    |relationalExpression GreaterThan ShiftExpression
+    |relationalExpression LessOrEqual ShiftExpression
+    |relationalExpression GreaterOrEqual ShiftExpression
+    |relationalExpression InstanceOf ReferenceType;
+
+//Equality Operators
+
+equalityExpression:
+    relationalExpression
+    |equalityExpression EqualEqual relationalExpression
+    |equalityExpression NotEqualTo relationalExpression;
+
+//Bitwise and Logical Operators
+andExpression:
+    equalityExpression
+    |andExpression BitwiseAND andExpression;
+exclusiveOrExpression:
+    andExpression
+    |exclusiveOrExpression BitwiseXOR andExpression;
+inclusiveOrExpression:
+    exclusiveOrExpression
+    inclusiveOrExpression BitwiseOR exclusiveOrExpression;
+//Conditional And (&&)
+conditionalAndExpression:
+    inclusiveOrExpression
+    |conditionalAndExpression ConditionalAnd inclusiveOrExpression;
+//conditional Or (||)
+conditionalOrExpression:
+    conditionalAndExpression
+    |conditionalOrExpression ConditionalOr conditionalAndExpression;
+//conditional Operator (?)
+conditionalExpression:
+    conditionalOrExpression
+    |conditionalOrExpression QuestionMark exp Colon conditionalOrExpression;
+
+//Assignment operators
+assignmentExpression:
+    conditionalExpression
+    |assignment;
+assignment:
+    leftHandSide assignmentOperator assignmentExpression;
+leftHandSide:
+    expressionName;
+    //|fieldAccess
+    //|arrayAccess;
+assignmentOperator:
+    Assignment | MultiplyAssign | DivideAssign | RemainderAssign | AddAssign | SubtractAssign | LeftShiftAssign
+    | SighnedRightShiftAssign | BitwiseANDAssign | BitwiseXORAssign | BitwiseORAssign;
+
+//Determining Meaning of a Name (Section 6.5)
+expressionName:
+    name;
+    //|ambiguousName Dot name;
