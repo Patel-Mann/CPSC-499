@@ -238,7 +238,7 @@ UnsighnedRightShiftAssign: '>>>=';
 
 
 //IDENTIFIERS  -------------------------------------------------------------------------------------------------------------------------------------------
-Identifier: JavaLetter JavaLetterOrDigit;
+IDENTIFIER: JavaLetter JavaLetterOrDigit;
 
 fragment JavaLetter:
     [a-zA-Z_$];

@@ -216,7 +216,7 @@ RemainderAssign
 LeftShiftAssign
 SighnedRightShiftAssign
 UnsighnedRightShiftAssign
-Identifier
+IDENTIFIER
 
 rule names:
 UnicodeInputCharacter
@@ -360,7 +360,7 @@ RemainderAssign
 LeftShiftAssign
 SighnedRightShiftAssign
 UnsighnedRightShiftAssign
-Identifier
+IDENTIFIER
 JavaLetter
 JavaLetterOrDigit
 

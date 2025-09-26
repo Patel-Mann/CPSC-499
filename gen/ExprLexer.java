@@ -1,4 +1,4 @@
-// Generated from /Users/mannpatel/Desktop/CPSC-499/ExprLexer.g4 by ANTLR 4.13.2
+// Generated from C:/Users/mande/OneDrive - University of Calgary/Documents/GitHub/CPSC-499/ExprLexer.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -36,7 +36,7 @@ public class ExprLexer extends Lexer {
 		UnsignedRightShift=95, AddAssign=96, SubtractAssign=97, MultiplyAssign=98, 
 		DivideAssign=99, BitwiseANDAssign=100, BitwiseORAssign=101, BitwiseXORAssign=102, 
 		RemainderAssign=103, LeftShiftAssign=104, SighnedRightShiftAssign=105, 
-		UnsighnedRightShiftAssign=106, Identifier=107;
+		UnsighnedRightShiftAssign=106, IDENTIFIER=107;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 	};
@@ -73,7 +73,7 @@ public class ExprLexer extends Lexer {
 			"Remainder", "LeftShift", "SignedRightShift", "UnsignedRightShift", "AddAssign", 
 			"SubtractAssign", "MultiplyAssign", "DivideAssign", "BitwiseANDAssign", 
 			"BitwiseORAssign", "BitwiseXORAssign", "RemainderAssign", "LeftShiftAssign", 
-			"SighnedRightShiftAssign", "UnsighnedRightShiftAssign", "Identifier", 
+			"SighnedRightShiftAssign", "UnsighnedRightShiftAssign", "IDENTIFIER", 
 			"JavaLetter", "JavaLetterOrDigit"
 		};
 	}
@@ -119,7 +119,7 @@ public class ExprLexer extends Lexer {
 			"SignedRightShift", "UnsignedRightShift", "AddAssign", "SubtractAssign", 
 			"MultiplyAssign", "DivideAssign", "BitwiseANDAssign", "BitwiseORAssign", 
 			"BitwiseXORAssign", "RemainderAssign", "LeftShiftAssign", "SighnedRightShiftAssign", 
-			"UnsighnedRightShiftAssign", "Identifier"
+			"UnsighnedRightShiftAssign", "IDENTIFIER"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
