@@ -188,7 +188,7 @@ NullLiteral: 'null';
 
 //SEPRATORS  -------------------------------------------------------------------------------------------------------------------------
 ParenthesesLeft: '(';
-ParanthesesRight: ')';
+ParenthesesRight: ')';
 CurlyBracketLeft: '{';
 CurlyBracketRight: '}';
 SquareBracketLeft: '[';
@@ -233,8 +233,8 @@ BitwiseORAssign: '|=';
 BitwiseXORAssign: '^=';
 RemainderAssign: '%=';
 LeftShiftAssign: '<<=';
-SighnedRightShiftAssign: '>>=';
-UnsighnedRightShiftAssign: '>>>=';
+SignedRightShiftAssign: '>>=';
+UnsignedRightShiftAssign: '>>>=';
 
 
 //IDENTIFIERS  -------------------------------------------------------------------------------------------------------------------------------------------

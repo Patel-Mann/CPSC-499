@@ -15,8 +15,111 @@ literal:  IntegerLiteral
          | BooleanLiteral
          | NullLiteral;
 
-expression: expression1 (assignmentOperator expression1)?;
+//expression: assignmentExpression;//expression1 (assignmentOperator expression1)?;
 
+
+//testy test
+// Top
+expression
+  : assignmentExpression
+  ;
+
+// Assignment is right-assoc and restricts LHS
+assignmentExpression
+  : leftHandSide assignmentOperator assignmentExpression
+  | conditionalExpression
+  ;
+
+// ?: binds looser than ||
+conditionalExpression
+  : conditionalOrExpression
+    (Question expression Colon conditionalExpression)?
+  ;
+
+// ||  (left-assoc)
+conditionalOrExpression
+  : conditionalAndExpression
+    (ConditionalOR conditionalAndExpression)*
+  ;
+
+// &&  (left-assoc)
+conditionalAndExpression
+  : inclusiveOrExpression
+    (ConditionalAND inclusiveOrExpression)*
+  ;
+
+// | ^ &  (left-assoc, each tier)
+inclusiveOrExpression
+  : exclusiveOrExpression
+    (BitwiseOR exclusiveOrExpression)*
+  ;
+
+exclusiveOrExpression
+  : andExpression
+    (BitwiseXOR andExpression)*
+  ;
+
+andExpression
+  : equalityExpression
+    (BitwiseAND equalityExpression)*
+  ;
+
+// == !=
+equalityExpression
+  : relationalExpression
+    ((EqualTo | NotEqualTo) relationalExpression)*
+  ;
+
+// < > <= >=  and  instanceof
+relationalExpression
+  : shiftExpression
+    ((LessThan | GreaterThan | LessThanEqualTo | GreaterThanEqualTo) shiftExpression)*
+  | shiftExpression InstanceOf type
+  ;
+
+// << >> >>>
+shiftExpression
+  : additiveExpression
+    ((LeftShift | SignedRightShift | UnsignedRightShift) additiveExpression)*
+  ;
+
+// + -
+additiveExpression
+  : multiplicativeExpression
+    ((Addition | Subtraction) multiplicativeExpression)*
+  ;
+
+// * / %
+multiplicativeExpression
+  : unaryExpression
+    ((Multiplication | Division | Remainder) unaryExpression)*
+  ;
+
+// ++x --x +x -x and the rest
+unaryExpression
+  : (Increment | Decrement) unaryExpression
+  | (Addition | Subtraction) unaryExpression
+  | unaryExpressionNotPlusMinus
+  ;
+
+unaryExpressionNotPlusMinus
+  : (BitwiseComplement | LogicalComplement) unaryExpression
+  | castExpression
+  | postfixExpression
+  ;
+
+// (T)expr
+castExpression
+  : ParenthesesLeft primitiveType ParanthesesRight unaryExpression
+  | ParenthesesLeft referenceType ParanthesesRight unaryExpressionNotPlusMinus
+  ;
+
+// post-inc/dec over your suffix-based primary
+postfixExpression
+  : primary (Increment | Decrement)*
+  ;
+
+//end test
 assignmentOperator: Assignment
                   | AddAssign
                   | SubtractAssign
@@ -27,8 +130,8 @@ assignmentOperator: Assignment
                   | BitwiseXORAssign
                   | RemainderAssign
                   | LeftShiftAssign
-                  | SighnedRightShiftAssign
-                  | UnsighnedRightShiftAssign;
+                  | SignedRightShiftAssign
+                  | UnsignedRightShiftAssign;
 
 type: identifier (Dot identifier)* bracketsOpt
      | basicType;
@@ -37,65 +140,65 @@ statementExpression: expression;
 
 constantExpression: expression;
 
-expression1: expression2 (expression1Rest)?;
-
-expression1Rest: Question expression Colon expression1;
-
-expression2: expression3 expression2Rest?;
-
-expression2Rest: (infixop expression3)+
-                | InstanceOf type;
-
-infixop:  ConditionalOR
-        | ConditionalAND
-        | BitwiseOR
-        | BitwiseXOR
-        | BitwiseAND
-        | EqualTo
-        | NotEqualTO
-        | LessThan
-        | GreterThan
-        | LessThanEqualTo
-        | GreaterThanEqualTo
-        | LeftShift
-        | SignedRightShift
-        | UnsignedRightShift
-        | Addition
-        | Subtraction
-        | Multiplication
-        | Division
-        | Remainder;
-
-expression3:  prefixOp expression3 // Recursion
-            | (expression | type) expression3
-            | primary (selector)* (postfixOp)*;
-
-primary:  (expression)
-        | This (arguments)?
-        | Super superSuffix
-        | literal
-        | New creator
-        | identifier (Dot identifier)* (identifierSuffix)?
-        | basicType bracketsOpt Dot Class
-        | Void Dot Class;
-
-////TEST
-//primary: primaryAtom primarySuffix*
-//  | New creator                             ;
+//expression1: expression2 (expression1Rest)?;
 //
-//primaryAtom: ParenthesesLeft expression ParenthesesRight
-//  | This
-//  | literal
-//  | qualifiedIdentifier
-//  | qualifiedIdentifier Dot This
-//  | basicType bracketsOpt Dot Class
-//  | Void Dot Class
-//  | Super;
+//expression1Rest: Question expression Colon expression1;
 //
-//// All selectors / postfix pieces (no recursion back to primary)
-//primarySuffix: Dot Identifier arguments?
-//  | SquareBracketLeft expression SquareBracketRight
-//  | Dot Class;
+//expression2: expression3 expression2Rest?;
+//
+//expression2Rest: (infixop expression3)+
+//                | InstanceOf type;
+//
+//infixop:  ConditionalOR
+//        | ConditionalAND
+//        | BitwiseOR
+//        | BitwiseXOR
+//        | BitwiseAND
+//        | EqualTo
+//        | NotEqualTo
+//        | LessThan
+//        | GreaterThan
+//        | LessThanEqualTo
+//        | GreaterThanEqualTo
+//        | LeftShift
+//        | SignedRightShift
+//        | UnsignedRightShift
+//        | Addition
+//        | Subtraction
+//        | Multiplication
+//        | Division
+//        | Remainder;
+//
+//expression3:  prefixOp expression3 // Recursion
+//            | ParenthesesLeft type ParenthesesRight expression3
+//            | primary (selector)* (postfixOp)*;
+
+//primary:  (expression)
+//        | This (arguments)?
+//        | Super superSuffix
+//        | literal
+//        | New creator
+//        | identifier (Dot identifier)* (identifierSuffix)?
+//        | basicType bracketsOpt Dot Class
+//        | Void Dot Class;
+
+//TEST
+primary: primaryAtom primarySuffix*
+  | New creator                             ;
+
+primaryAtom: ParenthesesLeft expression ParenthesesRight
+  | This
+  | literal
+  | qualifiedIdentifier
+  | qualifiedIdentifier Dot This
+  | basicType bracketsOpt Dot Class
+  | Void Dot Class
+  | Super;
+
+// All selectors / postfix pieces (no recursion back to primary)
+primarySuffix: Dot Identifier arguments?
+  | SquareBracketLeft expression SquareBracketRight
+  | Dot Class;
 ////END test
 
 identifierSuffix:  SquareBracketLeft SquareBracketRight bracketsOpt Dot Class //Case []...'.'class
@@ -174,12 +277,12 @@ statement: block
            | Break (identifier)? Semicolon
            | Continue (identifier)? Semicolon
            | Semicolon
-           | expressionStatement
+           //| expressionStatement
            | identifier Colon statement;
 
 catches: catchClause (catchClause)*;
 
-catchClause: Catch ParenthesesLeft formalParameter ParanthesesRight block;
+catchClause: Catch ParenthesesLeft formalParameter ParenthesesRight block;
 
 switchBlockStatementGroups: (switchBlockStatementGroup)*;
 
@@ -226,7 +329,7 @@ variableDeclaratorId: identifier bracketsOpt;
 
 compilationUnit: (Package qualifiedIdentifier Semicolon)? (importDeclaration)*;
 
-importDeclaration: Import identifier (Dot identifier)*(importDeclaration Multiplication)? Semicolon;
+importDeclaration: Import identifier (Dot identifier)* (Dot Multiplication)? Semicolon;
 
 typeDeclaration: classOrInterfaceDeclaration Semicolon;
 
@@ -236,7 +339,7 @@ classDeclaration: Class identifier (Extends type)? (Implements typeList)? classB
 
 interfaceDeclaration: Interface identifier (Extends typeList)? interfaceBody;
 
-typeList: type (Semicolon type)*;
+typeList: type (Comma type)*;
 
 classBody: CurlyBracketLeft (classBodyDeclaration)* CurlyBracketRight;
 
@@ -279,7 +382,7 @@ constructorDeclaratorRest: formalParameters (Throws qualifiedIdentifierList)? me
 
 qualifiedIdentifierList: qualifiedIdentifier (Semicolon qualifiedIdentifier)*;
 
-formalParameters:ParenthesesLeft (formalParameters(Semicolon formalParameter))? ParanthesesRight;
+formalParameters: ParenthesesLeft (formalParameter (Comma formalParameter)*)? ParenthesesRight;
 
 formalParameter: (Final)? type variableDeclaratorId;
 
@@ -293,64 +396,64 @@ asssignmentExpression: conditionalExpression
 assignment: leftHandSide assignmentOperator assignmentExpression;
 
 leftHandSide: expressionName
-            | fieldAccess
-            | arrayAccess;
+  | fieldAccess
+  | primary SquareBracketLeft expression SquareBracketRight(SquareBracketLeft expression SquareBracketRight)*;
 
-conditionalExpression: conditionalOrExpression
-                     | conditionalOrExpression Question expression Colon conditionalExpression;
-
- conditionalOrExpression:
-     conditionalAndExpression
-     |conditionalOrExpression ConditionalOr conditionalAndExpression;
- //Conditional And (&&)
- conditionalAndExpression:
-     inclusiveOrExpression
-     |conditionalAndExpression ConditionalAnd inclusiveOrExpression;
- inclusiveOrExpression:
-     exclusiveOrExpression
-     inclusiveOrExpression BitwiseOR exclusiveOrExpression;
-//Assignment operators
-assignmentExpression:conditionalExpression
-                    |assignment;
-
- relationalExpression:
-     shiftExpression
-     |relationalExpression LessThan shiftExpression
-     |relationalExpression GreaterThan shiftExpression
-     |relationalExpression LessOrEqual shiftExpression
-     |relationalExpression GreaterOrEqual shiftExpression
-     |relationalExpression InstanceOf referenceType;
+//conditionalExpression: conditionalOrExpression
+//                     | conditionalOrExpression Question expression Colon conditionalExpression;
+//
+// conditionalOrExpression:
+//     conditionalAndExpression
+//     |conditionalOrExpression ConditionalOr conditionalAndExpression;
+// //Conditional And (&&)
+// conditionalAndExpression:
+//     inclusiveOrExpression
+//     |conditionalAndExpression ConditionalAnd inclusiveOrExpression;
+// inclusiveOrExpression:
+//     exclusiveOrExpression
+//     inclusiveOrExpression BitwiseOR exclusiveOrExpression;
+////Assignment operators
+//assignmentExpression:conditionalExpression
+//                    |assignment;
+//
+// relationalExpression:
+//     shiftExpression
+//     |relationalExpression LessThan shiftExpression
+//     |relationalExpression GreaterThan shiftExpression
+//     |relationalExpression LessOrEqual shiftExpression
+//     |relationalExpression GreaterOrEqual shiftExpression
+//     |relationalExpression InstanceOf referenceType;
 
 //ShiftExpression:
-shiftExpression: additiveExpression
-               |shiftExpression LeftShift additiveExpression
-               |shiftExpression SignedRightShift additiveExpression
-               |shiftExpression UnsignedRightShift additiveExpression;
-//Additive Operators
-additiveExpression: multiplicativeExpression
-                   | additiveExpression Addition multiplicativeExpression
-                   | additiveExpression Subtraction multiplicativeExpression;
-
-//Multiplicative Operators
-multiplicativeExpression: unaryExpression
-                        | multiplicativeExpression Multiplication unaryExpression
-                        | multiplicativeExpression Division unaryExpression
-                        | multiplicativeExpression Remainder unaryExpression;
-//Unary Operators
-unaryExpression: preIncrementExpression
-                |preDecrementExpression
-                |Addition unaryExpression
-                |Subtraction unaryExpression
-                |unaryExpressionNotPlusMinus;
+//shiftExpression: additiveExpression
+//               |shiftExpression LeftShift additiveExpression
+//               |shiftExpression SignedRightShift additiveExpression
+//               |shiftExpression UnsignedRightShift additiveExpression;
+////Additive Operators
+//additiveExpression: multiplicativeExpression
+//                   | additiveExpression Addition multiplicativeExpression
+//                   | additiveExpression Subtraction multiplicativeExpression;
+//
+////Multiplicative Operators
+//multiplicativeExpression: unaryExpression
+//                        | multiplicativeExpression Multiplication unaryExpression
+//                        | multiplicativeExpression Division unaryExpression
+//                        | multiplicativeExpression Remainder unaryExpression;
+////Unary Operators
+//unaryExpression: preIncrementExpression
+//                |preDecrementExpression
+//                |Addition unaryExpression
+//                |Subtraction unaryExpression
+//                |unaryExpressionNotPlusMinus;
 
 preIncrementExpression: Increment unaryExpression;
 preDecrementExpression: Decrement unaryExpression;
-unaryExpressionNotPlusMinus: postfixExpression
-                            |BitwiseComplement unaryExpression
-                            |LogicalComplement unaryExpression
-                            | castExpression;
-castExpression: ParenthesesLeft primitiveType ParanthesesRight unaryExpression
-               | ParenthesesLeft referenceType ParanthesesRight unaryExpressionNotPlusMinus;
+//unaryExpressionNotPlusMinus: postfixExpression
+//                            |BitwiseComplement unaryExpression
+//                            |LogicalComplement unaryExpression
+//                            | castExpression;
+//castExpression: ParenthesesLeft primitiveType ParanthesesRight unaryExpression
+//               | ParenthesesLeft referenceType ParanthesesRight unaryExpressionNotPlusMinus;
 //Primitive types
 primitiveType: numericType
              | Boolean;
@@ -376,40 +479,29 @@ floatingPointType: Float | Double;
 //                | postIncrementExpression
 //                | postDecrementExpression;
 postfixBase: primary | expressionName ;
-postfixExpression  : postfixBase (Increment | Decrement)* ;
-postIncrementExpression: postfixExpression Increment;
-postDecrementExpression: postfixExpression Decrement;
+//postfixExpression  : postfixBase (Increment | Decrement)* ;
+//postIncrementExpression: postfixExpression Increment;
+//postDecrementExpression: postfixExpression Decrement;
 
- //Equality Operators
- equalityExpression:
-     relationalExpression
-     |equalityExpression EqualEqual relationalExpression
-     |equalityExpression NotEqualTo relationalExpression;
+// //Equality Operators
+// equalityExpression:
+//     relationalExpression
+//     |equalityExpression EqualEqual relationalExpression
+//     |equalityExpression NotEqualTo relationalExpression;
 
  //Bitwise and Logical Operators
- andExpression:
-     equalityExpression
-     |andExpression BitwiseAND andExpression;
- exclusiveOrExpression:
-     andExpression
-     |exclusiveOrExpression BitwiseXOR andExpression;
+// andExpression:
+//     equalityExpression
+//     |andExpression BitwiseAND andExpression;
+// exclusiveOrExpression:
+//     andExpression
+//     |exclusiveOrExpression BitwiseXOR andExpression;
 expressionName: Identifier (Dot Identifier)*;
 fieldAccess
   : primary Dot Identifier
   | Super Dot Identifier
   | typeName Dot Super Dot Identifier
   ;
-
-primaryNoNewArray: literal
-                 | type Dot Class
-                 |Void Dot Class
-                 |This
-                 |qualifiedIdentifier Dot This
-                 |ParenthesesLeft expression ParanthesesRight
-                 |classInstanceCreationExpression
-                 |fieldAccess
-                 |methodInvocation
-                 |arrayAccess;
 
 classInstanceCreationExpression: New classOrInterfaceType ParenthesesLeft argumentsOpt ParanthesesRight classBody
                                 | primary New identifier ParenthesesLeft argumentsOpt ParanthesesRight classBody;
