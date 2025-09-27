@@ -6,7 +6,7 @@ options {
 
 identifier: IDENTIFIER;
 
-qualifiedIdentifier: identifier {'.' identifier};
+qualifiedIdentifier: identifier (Dot identifier)*;
 
 literal:  IntegerLiteral
          | FloatingPointLiteral
@@ -15,7 +15,7 @@ literal:  IntegerLiteral
          | BooleanLiteral
          | NullLiteral;
 
-expression: expression1 [assignmentOperator expression1];
+expression: expression1 (assignmentOperator expression1)?;
 
 assignmentOperator: Assignment
                   | AddAssign
@@ -30,20 +30,20 @@ assignmentOperator: Assignment
                   | SighnedRightShiftAssign
                   | UnsighnedRightShiftAssign;
 
-type: identifier {'.' identifier} bracketsOpt
+type: identifier (Dot identifier)* bracketsOpt
      | basicType;
 
 statementExpression: expression;
 
 constantExpression: expression;
 
-expression1: expression2 [expression1Rest];
+expression1: expression2 (expression1Rest)*;
 
-expression1Rest: ['?' expression ':' expression1];
+expression1Rest: (Question expression Colon expression1)?;
 
-expression2: expression3 [expression2Rest];
+expression2: expression3 (expression2Rest)?;
 
-expression2Rest: {infixop expression3}
+expression2Rest: (infixop expression3)*
                 | expression3 INSTANCEOF type;
 
 infixop:  ConditionalOR
@@ -68,20 +68,20 @@ infixop:  ConditionalOR
 
 expression3:  prefixOp expression3 // Recursion
             | (expr | type) expression3
-            | primary {selector} {postfixOP};
+            | primary (selector)* (postfixOP)*;
 
 primary:  (expression)
-        | This [arguments]
+        | This (arguments)?
         | Super superSuffix
         | literal
         | New creator
-        | identifier {'.' identifier} [identifierSuffix]
-        | basicType bracketsOpt '.'Class
-        | Void '.' Class;
+        | identifier (Dot identifier)* (identifierSuffix)?
+        | basicType bracketsOpt Dot Class
+        | Void Dot Class;
 
-identifierSuffix:  '['(']' bracketsOpt '.' Class '/' expression ']')
+identifierSuffix:  SquareBracketLeft(SquareBracketRight bracketsOpt Dot Class Division expression SquareBracketRight)
                  | arguments
-                 |'.' '(' Class '/' This '/' Super arguments '/' New innerCreator ')';
+                 |Dot ParanthesesLeft Class Divisor This Divisor Super arguments Divisor New innerCreator ParanthesesRight;
                  // confused about this need to ask prof
 
 prefixOp:  Increment
@@ -111,11 +111,11 @@ basicType:  Byte
           | Double
           | Boolean;
 
-argumentsOpt: [arguments];
+argumentsOpt: (arguments)?;
 
-arguments: '(' [expression {',' expression}] ')';
+arguments: '(' (expression (',' expression)*)? ')';
 
-bracketsOpt: {'[' ']'}; //ask prof.
+bracketsOpt: ('[' ']')*; //ask prof.
 
 creator: qualifiedIdentifier ( arrayCreatorRest | classCreatorRest);
 

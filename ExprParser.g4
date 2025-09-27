@@ -114,8 +114,8 @@ assignment:
     leftHandSide assignmentOperator assignmentExpression;
 leftHandSide:
     expressionName;
-    //|fieldAccess
-    //|arrayAccess;
+    |fieldAccess
+    |arrayAccess;
 assignmentOperator:
     Assignment | MultiplyAssign | DivideAssign | RemainderAssign | AddAssign | SubtractAssign | LeftShiftAssign
     | SighnedRightShiftAssign | BitwiseANDAssign | BitwiseXORAssign | BitwiseORAssign;
@@ -123,4 +123,4 @@ assignmentOperator:
 //Determining Meaning of a Name (Section 6.5)
 expressionName:
     name;
-    //|ambiguousName Dot name;
+    |ambiguousName Dot name;
