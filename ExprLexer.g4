@@ -187,7 +187,7 @@ BooleanLiteral: 'true' | 'false' ;
 NullLiteral: 'null';
 
 //SEPRATORS  -------------------------------------------------------------------------------------------------------------------------
-ParanthesesLeft: '(';
+ParenthesesLeft: '(';
 ParanthesesRight: ')';
 CurlyBracketLeft: '{';
 CurlyBracketRight: '}';

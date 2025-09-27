@@ -79,10 +79,10 @@ primary:  (expression)
         | basicType bracketsOpt Dot Class
         | Void Dot Class;
 
-identifierSuffix:  SquareBracketLeft(SquareBracketRight bracketsOpt Dot Class Division expression SquareBracketRight)
-                 | arguments
-                 |Dot ParanthesesLeft Class Divisor This Divisor Super arguments Divisor New innerCreator ParanthesesRight;
-                 // confused about this need to ask prof
+identifierSuffix:  SquareBracketLeft SquareBracketRight bracketsOpt Dot Class //Case []...'.'class
+                |SquareBracketLeft expression SquareBracketRight //arr[5]
+                |arguments
+                |Dot (Class | This | Super arguments New innerCreator);
 
 prefixOp:  Increment
          | Decrement
@@ -93,14 +93,14 @@ prefixOp:  Increment
 
 postfixOp:  Increment | Decrement;
 
-selector: '.' identifier [arguments]
-         | '.' This
-         | '.' Super superSuffix
-         | '.' New innerCreator
-         | [expression];
+selector: Dot identifier (arguments)?
+         | Dot This
+         | Dot Super superSuffix
+         | Dot New innerCreator
+         | SquareBracketLeft expression SquareBracketRight;
 
 superSuffix: arguments
-            | '.' identifier [arguments];
+          | Dot identifier (arguments)?;
 
 basicType:  Byte
           | Short
@@ -110,15 +110,92 @@ basicType:  Byte
           | Float
           | Double
           | Boolean;
-
+//TODO: REVIEW ANYTHING BEFORE THIS POINT FOR POTENTIAL CONFUSSION ON TERMINAL SYMBOLS AND GRAMMAR
 argumentsOpt: (arguments)?;
 
-arguments: '(' (expression (',' expression)*)? ')';
+arguments: ParenthesesLeft (expression (',' expression)*)? ParenthesesRight;
 
-bracketsOpt: ('[' ']')*; //ask prof.
+bracketsOpt: (SquareBracketLeft SquareBracketRight)*;
 
 creator: qualifiedIdentifier ( arrayCreatorRest | classCreatorRest);
 
 innerCreator: identifier classCreatorRest;
 
-arrayCreatorRest: '[' ( ']' bracketsOpt arrayInitializer | expression ']' {[expression]};
+arrayCreatorRest: SquareBracketLeft SquareBracketRight bracketsOpt arrayInitializer
+| SquareBracketLeft expression SquareBracketRight (SquareBracketLeft expression SquareBracketRight)*;
+classCreatorRest: arguments (classBody)?;
+
+arrayInitializer: CurlyBracketLeft (variableInitializer(Comma variableInitializer)*(Comma)?)? CurlyBracketRight;
+
+variableInitializer: arrayInitializer
+|expression;
+
+parExpression: ParenthesesLeft expression ParenthesesRight;
+
+block: CurlyBracketLeft blockStatements CurlyBracketRight;
+
+blockStatements: (blockStatement)*;
+
+blockStatement: localVariableDeclarationStatement
+                |classOrInterfaceDeclaration
+                |(identifier Colon)?;
+
+localVariableDeclarationStatement: (Final)? type variableDeclarators;
+
+statement: block
+           | If parExpression statement (Else statement)?
+           | For ParenthesesLeft forInitOp Semicolon (expression)? Semicolon forUpdateOpt ParenthesesRight statement
+           | While parExpression statement
+           | Do statement While parExpression Semicolon
+           | Try block (catches | (catches)? Finally block)
+           | Switch parExpression CurlyBracketLeft switchBlockStatementsGroups? CurlyBracketRight
+           | Synchronized parExpression block
+           | Return (expression)? Semicolon
+           | Throw expression Semicolon
+           | Break (identifier)? Semicolon
+           | Continue (identifier)? Semicolon
+           | Semicolon
+           | expressionStatement
+           | identifier Colon statement;
+
+catches: catchClause (catchClause)*;
+
+catchClause: Catch ParenthesesLeft formalParameter ParanthesesRight block;
+
+switchBlockStatementGroups: (switchBlockStatementGroups)*;
+
+switchBlockStatementGroup: switchLabel blockStatements;
+
+switchLabel: Case constantExpression Colon
+           | Default Colon;
+moreStatementExpressions: (Comma statementExpression)*;
+
+forInit: statementExpression moreStatementExpressions
+       | (Final)? type variableDeclarators;
+
+forUpdate: statementExpression moreStatementExpressions;
+
+modifiersOpt: (modifier)*;
+
+modifier: Public
+        | Protected
+        | Private
+        | Static
+        | Abstract
+        | Final
+        | Native
+        | Synchronized
+        | Transient
+        | Volatile
+        | Strictfp;
+
+variableDeclarators: variableDeclarators (Comma variableDeclarator)*;
+
+variableDeclaratorsRest: variableDeclaratorsRest (Comma variableDeclarator)*;
+
+constantDeclaratorRest: constantDeclaratorRest (Comma constantDeclarator)*;
+
+variableDeclarator: identifier variableDeclaratorsRest;
+
+constantDeclarator: identifier constantDeclaratorRest;
+
