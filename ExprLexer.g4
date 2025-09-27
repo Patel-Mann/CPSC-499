@@ -8,7 +8,7 @@ fragment UnicodeEscape: '\\' UnicodeMarker HexDigit HexDigit HexDigit HexDigit;
 fragment UnicodeMarker: 'u'+;
 
 
-fragment RawInputCharacter:;
+fragment RawInputCharacter: .;
     //not complete need to ask question from prof.
 
 // LINE TERMINATORS  -----------------------------------------------------------------------------------------------------------------------
@@ -17,10 +17,10 @@ LineTerminator: '\n' | '\r' | '\r\n';
 InputCharacter: [^\n\r];
 
 //WHITE SPACE  ----------------------------------------------------------------------------------------------------------------------------------------
-WhiteSpace: ' ' | '\t' | '\f' | LineTerminator;
+WhiteSpace: (' ' | '\t' | '\f' | LineTerminator) -> skip;
 
 //COMMENTS  --------------------------------------------------------------------------------------------------------------------------------------------------
-Comment: TraditionalComment | EndOfLineComment;
+Comment: (TraditionalComment | EndOfLineComment) -> skip;
 
 fragment TraditionalComment:
     '/*' NotStar CommentTail;
@@ -199,10 +199,10 @@ Dot: '.';
 
 //OPERATORS  ---------------------------------------------------------------------------------------------------------------------------------------
 Assignment: '=';
-GreterThan: '>';
-LessThan: '<';
-LogicalComplement: '!';
 BitwiseComplement: '~';
+LessThan: '<';
+GreaterThan: '>';
+LogicalComplement: '!';
 Question: '?';
 Colon: ':';
 EqualTo: '==';
