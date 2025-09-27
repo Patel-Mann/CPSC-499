@@ -96,7 +96,7 @@ Volatile: 'volatile';
 While: 'while';
 
 // LITERALS  -------------------------------------------------------------------------------------------------------------------
-IntigerLiteral: DecimalIntegerLiteral | HexIntegerLiteral | OctalIntegerLiteral;
+IntegerLiteral: DecimalIntegerLiteral | HexIntegerLiteral | OctalIntegerLiteral;
 
 fragment DecimalIntegerLiteral:
     DecimalNumeral IntegerTypeSuffix?;
@@ -214,7 +214,7 @@ ConditionalOR: '||';
 Increment: '++';
 Decrement: '--';
 Addition: '+';
-Subtaction: '-';
+Subtraction: '-';
 Multiplication: '*';
 Division: '/';
 BitwiseAND: '&';
