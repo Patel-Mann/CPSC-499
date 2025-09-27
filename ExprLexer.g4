@@ -199,7 +199,7 @@ Dot: '.';
 
 //OPERATORS  ---------------------------------------------------------------------------------------------------------------------------------------
 Assignment: '=';
-GreaterThan: '>';
+GreterThan: '>';
 LessThan: '<';
 LogicalComplement: '!';
 BitwiseComplement: '~';
