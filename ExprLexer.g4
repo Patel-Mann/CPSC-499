@@ -1,14 +1,10 @@
 lexer grammar ExprLexer;
 
-// LINE TERMINATORS  -----------------------------------------------------------------------------------------------------------------------
 fragment LineTerminator: '\r' '\n'? |  '\n';
 
-//WHITE SPACE  ----------------------------------------------------------------------------------------------------------------------------------------
 WhiteSpace: (' ' | '\t' | '\f' | LineTerminator) -> skip;
 
-//COMMENTS  --------------------------------------------------------------------------------------------------------------------------------------------------
 fragment EndOfLineComment:  '//' ~('\r' | '\n')* LineTerminator?;
-
 
 Comment: (TraditionalComment | EndOfLineComment) -> skip;
 
@@ -26,7 +22,6 @@ fragment NotStar:
 fragment NotStarNotSlash:
     [^*/] | LineTerminator;
 
-// KEYWORDS  --------------------------------------------------------------------------------------------------------
 Abstract: 'abstract';
 Assert: 'assert';
 Boolean: 'boolean';
@@ -78,7 +73,7 @@ Volatile: 'volatile';
 While: 'while';
 
 Dot: '.';
-// LITERALS  -------------------------------------------------------------------------------------------------------------------
+
 IntegerLiteral: DecimalIntegerLiteral | HexIntegerLiteral | OctalIntegerLiteral;
 
 fragment DecimalIntegerLiteral:
@@ -169,7 +164,6 @@ BooleanLiteral: 'true' | 'false' ;
 
 NullLiteral: 'null';
 
-//SEPRATORS  -------------------------------------------------------------------------------------------------------------------------
 ParenthesesLeft: '(';
 ParenthesesRight: ')';
 CurlyBracketLeft: '{';
@@ -179,8 +173,6 @@ SquareBracketRight: ']';
 Semicolon: ';';
 Comma: ',';
 
-
-//OPERATORS  ---------------------------------------------------------------------------------------------------------------------------------------
 UnsignedRightShiftAssign: '>>>=';
 EqualTo: '==';
 NotEqualTo: '!=';
@@ -218,9 +210,6 @@ BitwiseAND: '&';
 BitwiseOR: '|';
 BitwiseXOR: '^';
 Remainder: '%';
-
-
-//IDENTIFIERS  -------------------------------------------------------------------------------------------------------------------------------------------
 
 IDENTIFIER: JavaLetter JavaLetterOrDigit*;
 fragment JavaLetter:

@@ -31,39 +31,26 @@ public class ExprTool {
             }
         }
     }
-
-    // Reusable parsing + walking
     private static void parseAndWalk(String inputText, String sourceName) {
         try {
             // Create char stream
             CharStream input = CharStreams.fromString(inputText, sourceName);
-
-            // Lexer
             ExprLexer lexer = new ExprLexer(input);
             lexer.removeErrorListeners();
             lexer.addErrorListener(new ThrowingErrorListener());
-
-            // Tokens
             CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-            // Parser
             ExprParser parser = new ExprParser(tokens);
             parser.removeErrorListeners();
             parser.addErrorListener(new ThrowingErrorListener());
-
-            // Parse compilation unit
             ParseTree tree = parser.compilationUnit();
-
-            // Walk
             ParseTreeWalker walker = new ParseTreeWalker();
             walker.walk(new ClassPrinter(sourceName), tree);
 
         } catch (RuntimeException e) {
-            System.err.println("Parsing failed: " + e.getMessage());
+            System.err.println("Parsing File Failed: " + e.getMessage());
         }
     }
 
-    // Listener to print class declarations with line/column
     public static class ClassPrinter extends ExprParserBaseListener {
         private final String sourceName;
 
@@ -95,7 +82,7 @@ public class ExprTool {
             }
 
             String formatted = String.format(
-                " file %s, line %d, column %d%n%s",
+                " file %s, line %d, column %d, error-msg: %s",
                 sourceName, line, charPositionInLine, msg
             );
 
