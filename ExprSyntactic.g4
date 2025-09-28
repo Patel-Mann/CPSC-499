@@ -14,42 +14,41 @@ literal:  IntegerLiteral
          | StringLiteral
          | BooleanLiteral
          | NullLiteral;
-
+//Section 15.26: Assignment Operators
 expression: unaryExpr assignmentOperator expression | conditionalExpr ;
 
 //Highest Prescedence _Expr = expression
-//assignmentExpr: unaryExpr assignmentOperator assignmentExpr | conditionalExpr;
+//CI cha 6
+conditionalExpr: logicalOrExpr Question conditionalExpr Colon conditionalExpr | logicalOrExpr;
 
-conditionalExpr: logicalOrExpr '?' conditionalExpr ':' conditionalExpr |logicalOrExpr;
+logicalOrExpr: logicalAndExpr (ConditionalOR logicalAndExpr)*;
 
-logicalOrExpr: logicalAndExpr ('||' logicalAndExpr)*;
+logicalAndExpr: equalityExpr (ConditionalAND equalityExpr)*;
 
-logicalAndExpr: equalityExpr ('&&' equalityExpr)*;
+equalityExpr: relationalExpr ((EqualTo | NotEqualTo) relationalExpr)*;
 
-equalityExpr: relationalExpr (('==' | '!=') relationalExpr)*;
+relationalExpr: additiveExpr((LessThan | GreaterThan | LessThanEqualTo | GreaterThanEqualTo) additiveExpr | InstanceOf type)*;
 
-relationalExpr: additiveExpr(('<' | '>' | '<=' | '>=') additiveExpr | 'instanceof' type)*;
+additiveExpr: multiplicativeExpr((Addition | Subtraction) multiplicativeExpr)*;
+multiplicativeExpr: unaryExpr((Multiplication | Division | Remainder) unaryExpr)*;
 
-additiveExpr: multiplicativeExpr(('+' | '-') multiplicativeExpr)*;
-multiplicativeExpr: unaryExpr(('*' | '/' | '%') unaryExpr)*;
+unaryExpr:postfixExpr |(Addition | Subtraction | LogicalComplement | BitwiseComplement | Increment | Decrement) unaryExpr | parExpression type unaryExpr;
 
-unaryExpr:postfixExpr |('+' | '-' | '!' | '~' | '++' | '--') unaryExpr | parExpression type unaryExpr;
-
-postfixExpr: primaryExpr ('++'| '--'| '.' IDENTIFIER | '[' expression ']' | arguments)*;
+postfixExpr: primaryExpr (Increment| Decrement| Dot IDENTIFIER | SquareBracketLeft expression SquareBracketRight | arguments)*;
 
 primaryExpr: parExpression
-            |   IntegerLiteral
-            |   FloatingPointLiteral
-            |   StringLiteral
-            |   CharacterLiteral
-            |   BooleanLiteral
-            |   NullLiteral
-            |   IDENTIFIER
-            |   'this'
-            |   'super' ('.' IDENTIFIER)?
-            |   'new' type  arguments
-            |   primitiveType ('[' ']')* '.' 'class'
-            |   type '.' 'class';
+            | IntegerLiteral
+            | FloatingPointLiteral
+            | StringLiteral
+            | CharacterLiteral
+            | BooleanLiteral
+            | NullLiteral
+            | IDENTIFIER
+            | This
+            | Super (Dot IDENTIFIER)?
+            | New type  arguments
+            | primitiveType (SquareBracketLeft SquareBracketRight)* Dot Class
+            | type Dot Class;
 
 
 assignmentOperator: Assignment
@@ -65,86 +64,20 @@ assignmentOperator: Assignment
                   | SignedRightShiftAssign
                   | UnsignedRightShiftAssign;
 
-type: identifier (Dot identifier)* bracketsOpt
-     | primitiveType;
+type: identifier (Dot identifier)* bracketsOpt | primitiveType;
 
 statementExpression: expression;
 
 constantExpression: expression;
 
-//expression1: expression2 (expression1Rest)?;
-//
-//expression1Rest: Question expression Colon expression1;
-//
-//expression2: expression3 expression2Rest?;
-//
-//expression2Rest: (infixop expression3)+
-//                | InstanceOf type;
-
-//infixop:  ConditionalOR
-//        | ConditionalAND
-//        | BitwiseOR
-//        | BitwiseXOR
-//        | BitwiseAND
-//        | EqualTo
-//        | NotEqualTo
-//        | LessThan
-//        | GreaterThan
-//        | LessThanEqualTo
-//        | GreaterThanEqualTo
-//        | LeftShift
-//        | SignedRightShift
-//        | UnsignedRightShift
-//        | Addition
-//        | Subtraction
-//        | Multiplication
-//        | Division
-//        | Remainder;
-
-//expression3:  prefixOp expression3 // Recursion
-//            | ParenthesesLeft type ParenthesesRight expression3
-//            | primary (selector)* (postfixOp)*;
-
-//primary:  (expression)
-//        | This (arguments)?
-//        | Super superSuffix
-//        | literal
-//        | New creator
-//        | identifier (Dot identifier)* (identifierSuffix)?
-//        | primitiveType bracketsOpt Dot Class
-//        | Void Dot Class;
-
-identifierSuffix:  SquareBracketLeft SquareBracketRight bracketsOpt Dot Class //Case []...'.'class
-                |SquareBracketLeft expression SquareBracketRight //arr[5]
+identifierSuffix:  SquareBracketLeft SquareBracketRight bracketsOpt Dot Class
+                |SquareBracketLeft expression SquareBracketRight
                 |arguments
                 |Dot (Class | This | Super arguments New innerCreator);
 
-//prefixOp:  Increment
-//         | Decrement
-//         | LogicalComplement
-//         | BitWiseComplement
-//         | Addition
-//         | Subtraction;
-
 postfixOp:  Increment | Decrement;
 
-//selector: Dot identifier (arguments)?
-//         | Dot This
-//         | Dot Super superSuffix
-//         | Dot New innerCreator
-//         | SquareBracketLeft expression SquareBracketRight;
-
-//superSuffix: arguments
-//          | Dot identifier (arguments)?;
-
-primitiveType:  Byte
-          | Short
-          | Char
-          | Int
-          | Long
-          | Float
-          | Double
-          | Boolean;
+primitiveType:  Byte | Short| Char | Int| Long| Float| Double| Boolean;
 //Method arguments
 argumentsOpt: (arguments)?;
 
@@ -177,33 +110,34 @@ blockStatement: localVariableDeclarationStatement
 
 localVariableDeclarationStatement: (Final)? type variableDeclarators;
 
-statement
-    :   matchedStatement                      // Case 1: All non-ambiguous statements
-    |   If parExpression statementNoShortIf   // Case 2: The 'Dangling' if (ends with an unmatched if)
-    ;
+statement:completeIf | If parExpression statementIncompleteIf;
 
-statementNoShortIf: block
-                    | If parExpression matchedStatement Else statementNoShortIf
+statementIncompleteIf: block
+                    | If parExpression completeIf Else statementIncompleteIf
                     | For ParenthesesLeft forInit? Semicolon (expression)? Semicolon forUpdate? ParenthesesRight statement
                     | While parExpression statement
                     | Do statement While parExpression Semicolon
-                    | Try block (catches+ Finally block? | Finally block)
-                    | Switch parExpression CurlyBracketLeft switchBlockStatementGroups? CurlyBracketRight
+                    | Try block catches
+                    | Try block Finally block
+                    | Try block catches Finally block
+                    | switchStatement
                     | Synchronized parExpression block
                     | Return (expression)? Semicolon
                     | Throw expression Semicolon
                     | Break (identifier)? Semicolon
                     | Continue (identifier)? Semicolon
-                    | Semicolon
                     | statementExpression Semicolon
-                    | identifier Colon statement;
-
-matchedStatement: If parExpression matchedStatement Else matchedStatement
-                | statementNoShortIf;
+                    | Semicolon;
+//solve ambiguity over If()else. aka (Dangling else).
+//this will do the longest check by looking for an else section, fincding the closest else!
+completeIf: If parExpression completeIf Else completeIf | statementIncompleteIf;
 
 catches: catchClause (catchClause)*;
 
 catchClause: Catch ParenthesesLeft formalParameter ParenthesesRight block;
+
+switchStatement: Switch parExpression CurlyBracketLeft CurlyBracketRight
+               | Switch parExpression CurlyBracketLeft switchBlockStatementGroups? CurlyBracketRight;
 
 switchBlockStatementGroups: (switchBlockStatementGroup)*;
 

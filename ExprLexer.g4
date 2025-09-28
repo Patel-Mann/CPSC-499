@@ -15,9 +15,6 @@ Comment: (TraditionalComment | EndOfLineComment) -> skip;
 fragment TraditionalComment:
    '/*' NotStar CommentTail;
 
-//fragment EndOfLineComment:
-//    '//' CharactersInLine? LineTerminator;
-
 fragment CommentTail: '*' CommentTailStar | NotStar ;
 
 fragment CommentTailStar:
@@ -28,23 +25,6 @@ fragment NotStar:
 
 fragment NotStarNotSlash:
     [^*/] | LineTerminator;
-
-//fragment CharactersInLine: InputCharacter
-//                         | InputCharacter;
-
-//// UNICODE  --------------------------------------------------------------------------------------------------------------
-//UnicodeInputCharacter: UnicodeEscape | RawInputCharacter;
-//
-//fragment UnicodeEscape: '\\' UnicodeMarker HexDigit HexDigit HexDigit HexDigit;
-//
-//fragment UnicodeMarker: 'u'+;
-//
-//
-//fragment RawInputCharacter: .;
-//    //not complete need to ask question from prof.
-//
-//
-//fragment InputCharacter: [^\n\r];
 
 // KEYWORDS  --------------------------------------------------------------------------------------------------------
 Abstract: 'abstract';
