@@ -1,32 +1,22 @@
 lexer grammar ExprLexer;
 
-// UNICODE  --------------------------------------------------------------------------------------------------------------
-UnicodeInputCharacter: UnicodeEscape | RawInputCharacter;
-
-fragment UnicodeEscape: '\\' UnicodeMarker HexDigit HexDigit HexDigit HexDigit;
-
-fragment UnicodeMarker: 'u'+;
-
-
-fragment RawInputCharacter: .;
-    //not complete need to ask question from prof.
-
 // LINE TERMINATORS  -----------------------------------------------------------------------------------------------------------------------
-LineTerminator: '\n' | '\r' | '\r\n';
-
-InputCharacter: [^\n\r];
+fragment LineTerminator: '\r' '\n'? |  '\n';
 
 //WHITE SPACE  ----------------------------------------------------------------------------------------------------------------------------------------
 WhiteSpace: (' ' | '\t' | '\f' | LineTerminator) -> skip;
 
 //COMMENTS  --------------------------------------------------------------------------------------------------------------------------------------------------
+fragment EndOfLineComment:  '//' ~('\r' | '\n')* LineTerminator?;
+
+
 Comment: (TraditionalComment | EndOfLineComment) -> skip;
 
 fragment TraditionalComment:
-    '/*' NotStar CommentTail;
+   '/*' NotStar CommentTail;
 
-fragment EndOfLineComment:
-    '//' CharactersInLine? LineTerminator;
+//fragment EndOfLineComment:
+//    '//' CharactersInLine? LineTerminator;
 
 fragment CommentTail: '*' CommentTailStar | NotStar ;
 
@@ -39,10 +29,22 @@ fragment NotStar:
 fragment NotStarNotSlash:
     [^*/] | LineTerminator;
 
-fragment CharactersInLine: InputCharacter
-                         | InputCharacter;
+//fragment CharactersInLine: InputCharacter
+//                         | InputCharacter;
 
-
+//// UNICODE  --------------------------------------------------------------------------------------------------------------
+//UnicodeInputCharacter: UnicodeEscape | RawInputCharacter;
+//
+//fragment UnicodeEscape: '\\' UnicodeMarker HexDigit HexDigit HexDigit HexDigit;
+//
+//fragment UnicodeMarker: 'u'+;
+//
+//
+//fragment RawInputCharacter: .;
+//    //not complete need to ask question from prof.
+//
+//
+//fragment InputCharacter: [^\n\r];
 
 // KEYWORDS  --------------------------------------------------------------------------------------------------------
 Abstract: 'abstract';
@@ -95,6 +97,7 @@ Void: 'void';
 Volatile: 'volatile';
 While: 'while';
 
+Dot: '.';
 // LITERALS  -------------------------------------------------------------------------------------------------------------------
 IntegerLiteral: DecimalIntegerLiteral | HexIntegerLiteral | OctalIntegerLiteral;
 
@@ -195,32 +198,18 @@ SquareBracketLeft: '[';
 SquareBracketRight: ']';
 Semicolon: ';';
 Comma: ',';
-Dot: '.';
+
 
 //OPERATORS  ---------------------------------------------------------------------------------------------------------------------------------------
-Assignment: '=';
-BitwiseComplement: '~';
-LessThan: '<';
-GreaterThan: '>';
-LogicalComplement: '!';
-Question: '?';
-Colon: ':';
+UnsignedRightShiftAssign: '>>>=';
 EqualTo: '==';
+NotEqualTo: '!=';
 LessThanEqualTo: '<=';
 GreaterThanEqualTo: '>=';
-NotEqualTo: '!=';
 ConditionalAND: '&&';
 ConditionalOR: '||';
 Increment: '++';
 Decrement: '--';
-Addition: '+';
-Subtraction: '-';
-Multiplication: '*';
-Division: '/';
-BitwiseAND: '&';
-BitwiseOR: '|';
-BitwiseXOR: '^';
-Remainder: '%';
 LeftShift: '<<';
 SignedRightShift: '>>';
 UnsignedRightShift: '>>>';
@@ -234,14 +223,28 @@ BitwiseXORAssign: '^=';
 RemainderAssign: '%=';
 LeftShiftAssign: '<<=';
 SignedRightShiftAssign: '>>=';
-UnsignedRightShiftAssign: '>>>=';
+Assignment: '=';
+BitwiseComplement: '~';
+LessThan: '<';
+GreaterThan: '>';
+LogicalComplement: '!';
+Question: '?';
+Colon: ':';
+Addition: '+';
+Subtraction: '-';
+Multiplication: '*';
+Division: '/';
+BitwiseAND: '&';
+BitwiseOR: '|';
+BitwiseXOR: '^';
+Remainder: '%';
 
 
 //IDENTIFIERS  -------------------------------------------------------------------------------------------------------------------------------------------
-IDENTIFIER: JavaLetter JavaLetterOrDigit;
 
+IDENTIFIER: JavaLetter JavaLetterOrDigit*;
 fragment JavaLetter:
-    [a-zA-Z_$];
+    [a-zA-Z$_];
 
 fragment JavaLetterOrDigit:
-    JavaLetter | [0-9];
+    [A-Za-z0-9$_];

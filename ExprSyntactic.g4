@@ -3,7 +3,7 @@ parser grammar ExprSyntactic;
 options {
     tokenVocab=ExprLexer;
 }
-
+prog: compilationUnit EOF;
 identifier: IDENTIFIER;
 
 qualifiedIdentifier: identifier (Dot identifier)*;
@@ -15,7 +15,41 @@ literal:  IntegerLiteral
          | BooleanLiteral
          | NullLiteral;
 
-expression: expression1 (assignmentOperator expression1)?;
+expression: unaryExpr assignmentOperator expression | conditionalExpr ;
+
+//Highest Prescedence _Expr = expression
+//assignmentExpr: unaryExpr assignmentOperator assignmentExpr | conditionalExpr;
+
+conditionalExpr: logicalOrExpr '?' conditionalExpr ':' conditionalExpr |logicalOrExpr;
+
+logicalOrExpr: logicalAndExpr ('||' logicalAndExpr)*;
+
+logicalAndExpr: equalityExpr ('&&' equalityExpr)*;
+
+equalityExpr: relationalExpr (('==' | '!=') relationalExpr)*;
+
+relationalExpr: additiveExpr(('<' | '>' | '<=' | '>=') additiveExpr | 'instanceof' type)*;
+
+additiveExpr: multiplicativeExpr(('+' | '-') multiplicativeExpr)*;
+multiplicativeExpr: unaryExpr(('*' | '/' | '%') unaryExpr)*;
+
+unaryExpr:postfixExpr |('+' | '-' | '!' | '~' | '++' | '--') unaryExpr | parExpression type unaryExpr;
+
+postfixExpr: primaryExpr ('++'| '--'| '.' IDENTIFIER | '[' expression ']' | arguments)*;
+
+primaryExpr: parExpression
+            |   IntegerLiteral
+            |   FloatingPointLiteral
+            |   StringLiteral
+            |   CharacterLiteral
+            |   BooleanLiteral
+            |   NullLiteral
+            |   IDENTIFIER
+            |   'this'
+            |   'super' ('.' IDENTIFIER)?
+            |   'new' type  arguments
+            |   primitiveType ('[' ']')* '.' 'class'
+            |   type '.' 'class';
 
 
 assignmentOperator: Assignment
@@ -32,78 +66,78 @@ assignmentOperator: Assignment
                   | UnsignedRightShiftAssign;
 
 type: identifier (Dot identifier)* bracketsOpt
-     | basicType;
+     | primitiveType;
 
 statementExpression: expression;
 
 constantExpression: expression;
 
-expression1: expression2 (expression1Rest)?;
+//expression1: expression2 (expression1Rest)?;
+//
+//expression1Rest: Question expression Colon expression1;
+//
+//expression2: expression3 expression2Rest?;
+//
+//expression2Rest: (infixop expression3)+
+//                | InstanceOf type;
 
-expression1Rest: Question expression Colon expression1;
+//infixop:  ConditionalOR
+//        | ConditionalAND
+//        | BitwiseOR
+//        | BitwiseXOR
+//        | BitwiseAND
+//        | EqualTo
+//        | NotEqualTo
+//        | LessThan
+//        | GreaterThan
+//        | LessThanEqualTo
+//        | GreaterThanEqualTo
+//        | LeftShift
+//        | SignedRightShift
+//        | UnsignedRightShift
+//        | Addition
+//        | Subtraction
+//        | Multiplication
+//        | Division
+//        | Remainder;
 
-expression2: expression3 expression2Rest?;
+//expression3:  prefixOp expression3 // Recursion
+//            | ParenthesesLeft type ParenthesesRight expression3
+//            | primary (selector)* (postfixOp)*;
 
-expression2Rest: (infixop expression3)+
-                | InstanceOf type;
-
-infixop:  ConditionalOR
-        | ConditionalAND
-        | BitwiseOR
-        | BitwiseXOR
-        | BitwiseAND
-        | EqualTo
-        | NotEqualTo
-        | LessThan
-        | GreaterThan
-        | LessThanEqualTo
-        | GreaterThanEqualTo
-        | LeftShift
-        | SignedRightShift
-        | UnsignedRightShift
-        | Addition
-        | Subtraction
-        | Multiplication
-        | Division
-        | Remainder;
-
-expression3:  prefixOp expression3 // Recursion
-            | ParenthesesLeft type ParenthesesRight expression3
-            | primary (selector)* (postfixOp)*;
-
-primary:  (expression)
-        | This (arguments)?
-        | Super superSuffix
-        | literal
-        | New creator
-        | identifier (Dot identifier)* (identifierSuffix)?
-        | basicType bracketsOpt Dot Class
-        | Void Dot Class;
+//primary:  (expression)
+//        | This (arguments)?
+//        | Super superSuffix
+//        | literal
+//        | New creator
+//        | identifier (Dot identifier)* (identifierSuffix)?
+//        | primitiveType bracketsOpt Dot Class
+//        | Void Dot Class;
 
 identifierSuffix:  SquareBracketLeft SquareBracketRight bracketsOpt Dot Class //Case []...'.'class
                 |SquareBracketLeft expression SquareBracketRight //arr[5]
                 |arguments
                 |Dot (Class | This | Super arguments New innerCreator);
 
-prefixOp:  Increment
-         | Decrement
-         | LogicalComplement
-         | BitWiseComplement
-         | Addition
-         | Subtraction;
+//prefixOp:  Increment
+//         | Decrement
+//         | LogicalComplement
+//         | BitWiseComplement
+//         | Addition
+//         | Subtraction;
 
 postfixOp:  Increment | Decrement;
 
-selector: Dot identifier (arguments)?
-         | Dot This
-         | Dot Super superSuffix
-         | Dot New innerCreator
-         | SquareBracketLeft expression SquareBracketRight;
+//selector: Dot identifier (arguments)?
+//         | Dot This
+//         | Dot Super superSuffix
+//         | Dot New innerCreator
+//         | SquareBracketLeft expression SquareBracketRight;
 
-superSuffix: arguments
-          | Dot identifier (arguments)?;
-//primitives
-basicType:  Byte
+//superSuffix: arguments
+//          | Dot identifier (arguments)?;
+
+primitiveType:  Byte
           | Short
           | Char
           | Int
@@ -111,6 +145,7 @@ basicType:  Byte
           | Float
           | Double
           | Boolean;
+//Method arguments
 argumentsOpt: (arguments)?;
 
 arguments: ParenthesesLeft (expression (Comma expression)*)? ParenthesesRight;
@@ -142,21 +177,29 @@ blockStatement: localVariableDeclarationStatement
 
 localVariableDeclarationStatement: (Final)? type variableDeclarators;
 
-statement: block
-           | If parExpression statement (Else statement)?
-           | For ParenthesesLeft forInit? Semicolon (expression)? Semicolon forUpdate? ParenthesesRight statement
-           | While parExpression statement
-           | Do statement While parExpression Semicolon
-           | Try block (catches | (catches)? Finally block)
-           | Switch parExpression CurlyBracketLeft switchBlockStatementGroups? CurlyBracketRight
-           | Synchronized parExpression block
-           | Return (expression)? Semicolon
-           | Throw expression Semicolon
-           | Break (identifier)? Semicolon
-           | Continue (identifier)? Semicolon
-           | Semicolon
-           //| expressionStatement
-           | identifier Colon statement;
+statement
+    :   matchedStatement                      // Case 1: All non-ambiguous statements
+    |   If parExpression statementNoShortIf   // Case 2: The 'Dangling' if (ends with an unmatched if)
+    ;
+
+statementNoShortIf: block
+                    | If parExpression matchedStatement Else statementNoShortIf
+                    | For ParenthesesLeft forInit? Semicolon (expression)? Semicolon forUpdate? ParenthesesRight statement
+                    | While parExpression statement
+                    | Do statement While parExpression Semicolon
+                    | Try block (catches+ Finally block? | Finally block)
+                    | Switch parExpression CurlyBracketLeft switchBlockStatementGroups? CurlyBracketRight
+                    | Synchronized parExpression block
+                    | Return (expression)? Semicolon
+                    | Throw expression Semicolon
+                    | Break (identifier)? Semicolon
+                    | Continue (identifier)? Semicolon
+                    | Semicolon
+                    | statementExpression Semicolon
+                    | identifier Colon statement;
+
+matchedStatement: If parExpression matchedStatement Else matchedStatement
+                | statementNoShortIf;
 
 catches: catchClause (catchClause)*;
 
@@ -205,11 +248,11 @@ constantDeclaratorRest: bracketsOpt Assignment variableInitializer;
 
 variableDeclaratorId: identifier bracketsOpt;
 
-compilationUnit: (Package qualifiedIdentifier Semicolon)? (importDeclaration)*;
+compilationUnit: (Package qualifiedIdentifier Semicolon)? (importDeclaration)*(typeDeclaration)*;
 
 importDeclaration: Import identifier (Dot identifier)* (Dot Multiplication)? Semicolon;
 
-typeDeclaration: classOrInterfaceDeclaration Semicolon;
+typeDeclaration: classOrInterfaceDeclaration | Semicolon;
 
 classOrInterfaceDeclaration: modifiersOpt (classDeclaration | interfaceDeclaration);
 
@@ -258,7 +301,7 @@ voidInterfaceMethodDeclaratorRest: formalParameters (Throws qualifiedIdentifierL
 
 constructorDeclaratorRest: formalParameters (Throws qualifiedIdentifierList)? methodBody;
 
-qualifiedIdentifierList: qualifiedIdentifier (Semicolon qualifiedIdentifier)*;
+qualifiedIdentifierList: qualifiedIdentifier (Comma qualifiedIdentifier)*;
 
 formalParameters: ParenthesesLeft (formalParameter (Comma formalParameter)*)? ParenthesesRight;
 
