@@ -20,10 +20,6 @@ public class LCA_JP1_0_0 {
 
         // Traverse the AST and print local classes
         new VoidVisitorAdapter<Void>() {
-            // boolean insideMethod = false;
-            
-            //
-            //resource <- 
 
             @Override
             public void visit(MethodDeclaration n, Void arg) {
@@ -32,9 +28,7 @@ public class LCA_JP1_0_0 {
 
             @Override
             public void visit(ClassOrInterfaceDeclaration n, Void arg) {
-                if (true) {
-                    System.out.println("Found local class: " + n.getName());
-                }
+                System.out.println("Found class: " + n.getName());
                 super.visit(n, arg);
             }
         }.visit(cu, null);
