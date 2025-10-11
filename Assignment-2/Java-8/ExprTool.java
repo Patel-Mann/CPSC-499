@@ -69,7 +69,7 @@ public class ExprTool {
             if(ctx.normalClassDeclaration() != null){
                 class_name = ctx.normalClassDeclaration().Identifier().getText();
             }else if(ctx.enumDeclaration() != null){
-                class_name = ctx.normalClassDeclaration().Identifier().getText();
+                class_name = ctx.enumDeclaration().Identifier().getText();
             }
 
             //String className = ctx.identifier().getText();
