@@ -59,12 +59,12 @@ public class LCA_JP1_0_0 {
 
         @Override
         public void visit(ExpressionStmt n, Void arg) {
-//            CFGNode exprNode = new CFGNode(n.toString())
-//            currCFG.addVertex(exprNode)
-//            //link nodes
-//            currCFG.addEdge(currentBlock, exprNode);
-//            currentBlock = exprNode;
-//            super.visit(n, arg);
+            CFGNode exprNode = new CFGNode(n.toString());
+            currCFG.addVertex(exprNode);
+            //link nodes
+            super.visit(n, arg);
+            currCFG.addEdge(currentBlock, exprNode);
+            currentBlock = exprNode;
         }
 
     }
