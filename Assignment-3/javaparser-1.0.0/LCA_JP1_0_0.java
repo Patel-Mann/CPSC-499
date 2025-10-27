@@ -31,7 +31,7 @@ public class LCA_JP1_0_0 {
             System.out.println("Usage: java LCA_JP1_0_0 <JavaSourceFile>");
             return;
         }
-
+        System.out.println("WELCOME TO THE JUNGLE");
         FileInputStream in = new FileInputStream(new File(args[0]));
         CompilationUnit cu = JavaParser.parse(in);
         in.close();
