@@ -1,3 +1,14 @@
-# IntelliJ IDEA / JetBrains
-# -------------------------------
+### Gradle ###
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+### IntelliJ ###
 .idea/
+*.iml
+out/
+
+### OS ###
+.DS_Store
+Thumbs.db

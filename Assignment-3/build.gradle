@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+// Tell Gradle where to find your .java files
+sourceSets {
+    main {
+        java {
+            srcDirs = ['javaparser-1.0.0']
+        }
+    }
+}
+
+dependencies {
+    // Local JavaParser 1.0.0 jar
+    implementation files('javaparser-1.0.0/javaparser-1.0.0.jar')
+
+    // Other local jars (JGraphT, Apfloat, etc.)
+    implementation fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+application {
+    // Your main class (adjust package name if needed)
+    mainClass = 'LCA_JP1_0_0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
+}

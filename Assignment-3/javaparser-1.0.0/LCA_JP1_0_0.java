@@ -1,3 +1,4 @@
+
 import japa.parser.JavaParser;
 import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.body.*;
@@ -5,6 +6,23 @@ import japa.parser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.FileInputStream;
 import java.io.File;
+
+//graph imports
+import org.jgrapht.*;
+import org.jgrapht.graph.*;
+import org.jgrapht.nio.*;
+import org.jgrapht.nio.dot.*;
+import org.jgrapht.traverse.*;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+
+import japa.parser.ast.stmt.ExpressionStmt;
+
+import CFGGraph.CFGNode;
+import CFGGraph.CFGEdge;
 
 public class LCA_JP1_0_0 {
 
@@ -18,24 +36,37 @@ public class LCA_JP1_0_0 {
         CompilationUnit cu = JavaParser.parse(in);
         in.close();
 
-        LocalClassVisitor visitor = new LocalClassVisitor();
+        CFGVisitor visitor = new CFGVisitor();
         visitor.visit(cu, null);
     }
-    
-    static class LocalClassVisitor extends VoidVisitorAdapter<Void> {
-        private boolean insideMethod = false;
-        
+
+    static class CFGVisitor extends VoidVisitorAdapter<Void> {
+        private Graph<CFGNode, CFGEdge> currCFG = new DefaultDirectedGraph<>(CFGEdge.class);
+        private CFGNode currentBlock;
+
         @Override
         public void visit(MethodDeclaration n, Void arg) {
-            insideMethod = true;
+            CFGNode funcNode = new CFGNode(n.getName());
+
+            System.out.println("CFG Building Root: " + n.getName());
+            //we assign root node
+            currCFG.addVertex(funcNode);
+            //update curr node
+            currentBlock = funcNode;
             super.visit(n, arg);
-            insideMethod = false;
+            System.out.println(currCFG.toString());
         }
-        
+
         @Override
-        public void visit(ClassOrInterfaceDeclaration n, Void arg) {
-            System.out.println("Local class: " + n.getName());
-            super.visit(n, arg);
+        public void visit(ExpressionStmt n, Void arg) {
+//            CFGNode exprNode = new CFGNode(n.toString())
+//            currCFG.addVertex(exprNode)
+//            //link nodes
+//            currCFG.addEdge(currentBlock, exprNode);
+//            currentBlock = exprNode;
+//            super.visit(n, arg);
         }
+
     }
+
 }
