@@ -3,7 +3,7 @@ public class Test_1{
     switch(x){
       case 1: x += 10;
       break;
-      case 2: x *= 2:
+      case 2: x *= 2;
       break;
       default: x = -1;
     }
