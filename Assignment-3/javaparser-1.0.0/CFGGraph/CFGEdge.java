@@ -6,6 +6,7 @@ public class CFGEdge extends DefaultEdge {
     private boolean path;
     private CFGNode from;
     private CFGNode to;
+    private String label;
 
     public CFGEdge() {
         this(null, null);
@@ -13,6 +14,28 @@ public class CFGEdge extends DefaultEdge {
     public CFGEdge(CFGNode from, CFGNode to) {
         this.from = from;
         this.to = to;
+        this.label = "";
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return this.label;
+    }
+
+    public CFGNode getFrom() {
+        return this.from;
+    }
+
+    public CFGNode getTo() {
+        return this.to;
+    }
+
+    @Override
+    public String toString() {
+        return label;
     }
 
     public void setPath(boolean path) { this.path = path; }
