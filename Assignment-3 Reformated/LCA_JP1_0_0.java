@@ -25,7 +25,6 @@ public class LCA_JP1_0_0 {
             System.out.println("Usage: java LCA_JP1_0_0 <JavaSourceFile>");
             return;
         }
-        System.out.println("WELCOME TO THE JUNGLE");
         FileInputStream in = new FileInputStream(new File(args[0]));
         CompilationUnit cu = JavaParser.parse(in);
         in.close();
@@ -62,12 +61,12 @@ public class LCA_JP1_0_0 {
                 visitBlockStmt(body);
             }
             
-            // Connect the last block to exit if not already connected
+            // Connect last block to exit if not already connected
             if (currentBlock != null && currentBlock != exitNode) {
                 addEdge(currentBlock, exitNode, "");
             }
             
-            //new function Print CFG
+            // Print CFG
             printCFG(n.getName());
         }
 
@@ -108,6 +107,7 @@ public class LCA_JP1_0_0 {
             addEdge(currentBlock, exprNode, "");
             currentBlock = exprNode;
             
+            // Track constant like "int v = 5" or "v = 5"
             String stmtStr = stmt.toString().trim();
             if (stmtStr.contains("=") && !stmtStr.contains("==")) {
                 try {
@@ -126,8 +126,7 @@ public class LCA_JP1_0_0 {
                             int value = Integer.parseInt(valuePart);
                             constantValues.put(varName, value);
                         } catch (NumberFormatException e) {
-                            // Not a constant, remove from tracking
-                            constantValues.remove(varName);
+                            constantValues.remove(varName); // Not a constant, remove from tracking
                         }
                     }
                 } catch (Exception e) {
@@ -139,21 +138,16 @@ public class LCA_JP1_0_0 {
         private void visitIfStmt(IfStmt stmt) {
             // Evaluate condition if possible
             String condStr = stmt.getCondition().toString();
-            String evaluatedCond = evaluateCondition(condStr);
+            String edgeLabel = evaluateConditionForEdge(condStr);
             
-            // Determine if condition is always true or false
-            boolean alwaysTrue = evaluatedCond.contains("TRUE");
-            boolean alwaysFalse = evaluatedCond.contains("FALSE");
-            
-            // Create condition node with evaluation result
-            CFGNode condNode = new CFGNode("if (" + condStr + ")" + evaluatedCond);
+            // Create condition node
+            CFGNode condNode = new CFGNode("if (" + condStr + ")");
             currCFG.addVertex(condNode);
             addEdge(currentBlock, condNode, "");
             
             CFGNode mergeNode = new CFGNode("MERGE_IF");
             currCFG.addVertex(mergeNode);
             
-            // Save the condition node to connect branches
             CFGNode savedCond = condNode;
             
             // Then branch
@@ -163,22 +157,19 @@ public class LCA_JP1_0_0 {
                 visitStatement(thenStmt);
             }
             
-            // Connect then branch to merge
             CFGNode thenEnd = currentBlock;
             if (thenEnd != null && thenEnd != savedCond) {
                 addEdge(thenEnd, mergeNode, "");
             }
             
-            // Add labeled edge from condition to then branch
-            // Show "T" when condition is ALWAYS TRUE
-            if (alwaysTrue) {
-                // Find the edge to the then branch and label it
+            // Label then branch edge if we evaluated it
+            if (!edgeLabel.isEmpty()) {
                 Set<CFGEdge> edges = new HashSet<CFGEdge>(currCFG.outgoingEdgesOf(savedCond));
                 for (CFGEdge e : edges) {
                     CFGNode target = currCFG.getEdgeTarget(e);
                     if (target != mergeNode) {
                         currCFG.removeEdge(e);
-                        addEdge(savedCond, target, "T");
+                        addEdge(savedCond, target, edgeLabel);
                         break;
                     }
                 }
@@ -193,35 +184,15 @@ public class LCA_JP1_0_0 {
                 if (elseEnd != null && elseEnd != savedCond) {
                     addEdge(elseEnd, mergeNode, "");
                 }
-                
-                // Add labeled edge from condition to else branch
-                // Show "F" when condition is ALWAYS FALSE
-                if (alwaysFalse) {
-                    Set<CFGEdge> edges = new HashSet<CFGEdge>(currCFG.outgoingEdgesOf(savedCond));
-                    for (CFGEdge e : edges) {
-                        CFGNode target = currCFG.getEdgeTarget(e);
-                        if (target != mergeNode && e.getLabel() == null) {
-                            currCFG.removeEdge(e);
-                            addEdge(savedCond, target, "F");
-                            break;
-                        }
-                    }
-                } else {
-                    // Normal case - else gets F label
-                    addEdge(savedCond, mergeNode, "F");
-                }
             } else {
-                // No else branch - always label this F
                 addEdge(savedCond, mergeNode, "F");
             }
             
             currentBlock = mergeNode;
         }
         
-        // *** CHANGE 4: NEW METHOD - Evaluate condition based on tracked constant values ***
-        private String evaluateCondition(String condition) {
+        private String evaluateConditionForEdge(String condition) {
             try {
-                // Handle simple comparisons like "v == 5", "v > 5", "v < 5"
                 String[] operators = {"==", "!=", ">=", "<=", ">", "<"};
                 
                 for (String op : operators) {
@@ -231,27 +202,19 @@ public class LCA_JP1_0_0 {
                             String leftStr = parts[0].trim();
                             String rightStr = parts[1].trim();
                             
-                            Integer leftVal = null;
-                            Integer rightVal = null;
+                            Integer leftVal = constantValues.get(leftStr);
+                            Integer rightVal = constantValues.get(rightStr);
                             
-                            // Try to get value from constants map or parse directly
-                            if (constantValues.containsKey(leftStr)) {
-                                leftVal = constantValues.get(leftStr);
-                            } else {
-                                try {
-                                    leftVal = Integer.parseInt(leftStr);
-                                } catch (NumberFormatException e) {}
+                            if (leftVal == null) {
+                                try { leftVal = Integer.parseInt(leftStr); } 
+                                catch (NumberFormatException e) {}
                             }
                             
-                            if (constantValues.containsKey(rightStr)) {
-                                rightVal = constantValues.get(rightStr);
-                            } else {
-                                try {
-                                    rightVal = Integer.parseInt(rightStr);
-                                } catch (NumberFormatException e) {}
+                            if (rightVal == null) {
+                                try { rightVal = Integer.parseInt(rightStr); } 
+                                catch (NumberFormatException e) {}
                             }
                             
-                            // If we have both values, evaluate
                             if (leftVal != null && rightVal != null) {
                                 boolean result = false;
                                 if (op.equals("==")) result = leftVal.equals(rightVal);
@@ -261,16 +224,14 @@ public class LCA_JP1_0_0 {
                                 else if (op.equals(">=")) result = leftVal >= rightVal;
                                 else if (op.equals("<=")) result = leftVal <= rightVal;
                                 
-                                return " [ALWAYS " + (result ? "TRUE" : "FALSE") + "]";
+                                return result ? "T" : "F";
                             }
                         }
-                        break; // Found operator, don't check others
+                        break;
                     }
                 }
-            } catch (Exception e) {
-                // Evaluation failed
-            }
-            return ""; // Cannot determine
+            } catch (Exception e) {}
+            return "";
         }
 
         private void visitForStmt(ForStmt stmt) {
@@ -382,35 +343,27 @@ public class LCA_JP1_0_0 {
         }
 
         private void printCFG(String methodName) {
-            // Grammar: "CFG" SPACE GraphName ":" NEWLINE
             System.out.print("CFG ");
             System.out.print(methodName);
             System.out.print(":");
             System.out.println();
             
-            // Get all vertices and sort by ID
             Set<CFGNode> vertexSet = currCFG.vertexSet();
             List<CFGNode> nodes = new ArrayList<CFGNode>(vertexSet);
-            
-            // Sort nodes by ID
             Collections.sort(nodes, new Comparator<CFGNode>() {
                 public int compare(CFGNode n1, CFGNode n2) {
                     return n1.getID() - n2.getID();
                 }
             });
             
-            // Grammar: (SPACE SPACE SPACE SPACE Node NEWLINE)*
             for (CFGNode node : nodes) {
-                // Four spaces
-                System.out.print("    ");
-                // "node" SPACE IDENTIFIER ":" LABEL SPACE
+                System.out.print("\t");
                 System.out.print("node ");
                 System.out.print(node.getID());
                 System.out.print(": ");
                 System.out.print(node.getLabel());
                 System.out.print(" ");
                 
-                // ("edge" SPACE LABEL SPACE IDENTIFIER ";" SPACE)*
                 Set<CFGEdge> outEdges = currCFG.outgoingEdgesOf(node);
                 for (CFGEdge edge : outEdges) {
                     CFGNode target = currCFG.getEdgeTarget(edge);
