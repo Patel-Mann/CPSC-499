@@ -1,4 +1,4 @@
-public class Test {
+public class Test_0 {
     public int methodForLoop() {
         int val = 1;
 
