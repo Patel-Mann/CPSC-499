@@ -1,4 +1,4 @@
-public class test_1{
+public class Test_1{
   public int calculate(int x){
     switch(x){
       case 1: x += 10;
@@ -14,15 +14,17 @@ public class test_1{
     }
     return finalValue(x);
   }
-  private int riskyOp(int input) Exception {
+  int riskyOp(int input) throws Exception {
     if (input < 0){
       throw new Exception("Negative input");
     }
     return input + 5;
   }
-  private int finalValue(int val){
+  int finalValue(int val){
     return val*2;
   }
-
-int result = this.calculate(2);
+public static void main(String[] args){
+  Test_1 obj = new Test_1();
+int result = obj.calculate(2);
+  System.out.println("Result: " + result);}
 }
