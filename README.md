@@ -6,6 +6,8 @@
 ### Run
 
 ```bash
+chmod +x run.sh
+
 # Show all dependencies for a file
 ./run.sh examples/Example1.java
 
