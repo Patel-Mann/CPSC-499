@@ -132,8 +132,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 	private String getCurrentName() {
 		StringBuilder sb = new StringBuilder();
 
-		for(String name : nameStack) {
-			if(sb.length() == 0)
+		for (String name : nameStack) {
+			if (sb.length() == 0)
 				sb.append(name);
 			else {
 				sb.append('.');
@@ -164,7 +164,7 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		int childCount = arg0.getChildCount();
 		WorkingGraph result = null;
 
-		for(int i = 0; i < childCount; i++)
+		for (int i = 0; i < childCount; i++)
 			result = visit(arg0.getChild(i));
 
 		return result;
@@ -344,11 +344,13 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": block");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		List<BlockStatementContext> statements = ctx.blockStatement();
 
-		for(int i = 0, size = statements.size(); i < size; i++)
+		for (int i = 0, size = statements.size(); i < size; i++)
 			s.connect(visitBlockStatement(statements.get(i)));
 
 		return s;
@@ -360,11 +362,13 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": block");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		List<BlockStatementContext> statements = ctx.blockStatement();
 
-		for(int i = 0, size = statements.size(); i < size; i++) {
+		for (int i = 0, size = statements.size(); i < size; i++) {
 			WorkingGraph bs = visitBlockStatement(statements.get(i));
 
 			bs.edges.add(g.buildEdge(bs.node, null, EdgeLabel.THROWN));
@@ -380,18 +384,20 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": block");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
-		if(delayedThrown)
+		if (delayedThrown)
 			s.edges.add(g.buildEdge(s.node, null, EdgeLabel.THROWN_DELAYED));
 
 		List<BlockStatementContext> statements = ctx.blockStatement();
 
-		for(int i = 0, size = statements.size(); i < size; i++) {
+		for (int i = 0, size = statements.size(); i < size; i++) {
 			WorkingGraph bs = visitBlockStatement(statements.get(i));
 
-			if(delayedThrown)
-				if(i == size - 1)
+			if (delayedThrown)
+				if (i == size - 1)
 					bs.edges.add(g.buildEdge(bs.node, null, EdgeLabel.THROWN));
 				else
 					bs.edges.add(g.buildEdge(bs.node, null, EdgeLabel.THROWN_DELAYED));
@@ -410,11 +416,11 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 	ControlFlowGraph getGraph(RuleContext ctx) {
 		RuleContext current = ctx;
 
-		while(current != null && !(current instanceof MemberDeclarationContext)
-			&& !(current instanceof ClassBodyDeclarationContext) && !(current instanceof InterfaceBodyContext))
+		while (current != null && !(current instanceof MemberDeclarationContext)
+				&& !(current instanceof ClassBodyDeclarationContext) && !(current instanceof InterfaceBodyContext))
 			current = current.getParent();
 
-		if(current != null)
+		if (current != null)
 			return graphMap.get(current);
 
 		return null;
@@ -427,7 +433,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		s.node = g.buildNode(nodeCounter++ + ": " + ctx.accept(new TreePrinter()));
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
-
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		return s;
 	}
 
@@ -452,16 +459,18 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": " + ctx.accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		IdentifierContext ic = ctx.identifier();
 		String label = "";
 
-		if(ic != null)
+		if (ic != null)
 			label = ic.getText().intern();
 
 		List<Edge> list = s.breakEdges.get(label);
 
-		if(list == null) {
+		if (list == null) {
 			list = new ArrayList<>();
 			s.breakEdges.put(label, list);
 		}
@@ -477,16 +486,18 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": " + ctx.accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		IdentifierContext ic = ctx.identifier();
 		String label = "";
 
-		if(ic != null)
+		if (ic != null)
 			label = ic.getText();
 
 		List<Edge> list = s.continueEdges.get(label);
 
-		if(list == null) {
+		if (list == null) {
 			list = new ArrayList<>();
 			s.continueEdges.put(label, list);
 		}
@@ -502,18 +513,20 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": do");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		WorkingGraph doBody = visitStatement(ctx.statement());
 
 		g.buildEdge(s.node, doBody.node, EdgeLabel.BLANK);
 
 		Node whileExpression = g
-			.buildNode(nodeCounter++ + ": while " + ctx.parenthesizedExpression().accept(new TreePrinter()) + "; ");
+				.buildNode(nodeCounter++ + ": while " + ctx.parenthesizedExpression().accept(new TreePrinter()) + "; ");
 
 		g.buildEdge(whileExpression, s.node, EdgeLabel.TRUE);
 
-		for(Edge edge : doBody.edges) {
-			if(edge.label() == EdgeLabel.THROWN)
+		for (Edge edge : doBody.edges) {
+			if (edge.label() == EdgeLabel.THROWN)
 				s.edges.add(edge);
 			else
 				edge.target = whileExpression;
@@ -523,15 +536,15 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		List<Edge> nonLabelledBreakEdges = doBody.breakEdges.get("");
 
-		if(nonLabelledBreakEdges != null) {
+		if (nonLabelledBreakEdges != null) {
 			s.edges.addAll(nonLabelledBreakEdges);
 			s.breakEdges.remove("");
 		}
 
 		List<Edge> nonLabelledContinueEdges = doBody.continueEdges.get("");
 
-		if(nonLabelledContinueEdges != null) {
-			for(Edge edge : nonLabelledContinueEdges) {
+		if (nonLabelledContinueEdges != null) {
+			for (Edge edge : nonLabelledContinueEdges) {
 				edge.setTarget(whileExpression);
 				s.edges.add(edge);
 			}
@@ -550,6 +563,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": if " + ctx.parenthesizedExpression().accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		WorkingGraph trueNode = visitStatement(ctx.statement());
 
@@ -558,13 +573,12 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		ElseClauseContext elseClause = ctx.elseClause();
 
-		if(elseClause != null) {
+		if (elseClause != null) {
 			WorkingGraph elseNode = visitElseClause(elseClause);
 
 			s.edges.add(g.buildEdge(s.node, elseNode.node, EdgeLabel.FALSE));
 			s.connect(elseNode);
-		}
-		else
+		} else
 			s.edges.add(g.buildEdge(s.node, null, EdgeLabel.FALSE));
 
 		return s;
@@ -577,18 +591,18 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = visitStatement(sc);
 		List<Edge> breakEdges = s.breakEdges.get(label);
 
-		if(breakEdges != null) {
+		if (breakEdges != null) {
 			s.breakEdges.remove(label);
 			s.edges.addAll(breakEdges);
 		}
 
 		List<Edge> continueEdges = s.continueEdges.get(label);
 
-		if(continueEdges != null) {
+		if (continueEdges != null) {
 			s.continueEdges.remove(label);
 
-			if(sc.forStatement() != null || sc.whileStatement() != null || sc.doStatement() != null)
-				for(Edge continueEdge : continueEdges)
+			if (sc.forStatement() != null || sc.whileStatement() != null || sc.doStatement() != null)
+				for (Edge continueEdge : continueEdges)
 					continueEdge.setTarget(s.node);
 		}
 
@@ -606,36 +620,38 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": try");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		WorkingGraph tryBody = visitTryBlock(tryBlock);
 
 		s.connect(tryBody);
 
-		for(CatchClauseContext catch_ : catchClauses) {
+		for (CatchClauseContext catch_ : catchClauses) {
 			WorkingGraph catchClause = visitCatchClause(catch_);
 
-			for(Edge edge : s.edges) {
-				if(edge.label() == EdgeLabel.THROWN && edge.target() == null)
+			for (Edge edge : s.edges) {
+				if (edge.label() == EdgeLabel.THROWN && edge.target() == null)
 					edge.setTarget(catchClause.node);
 			}
 
 			s.edges.addAll(catchClause.edges);
 		}
 
-		if(finallyClause != null) {
+		if (finallyClause != null) {
 			boolean delayedThrown = false;
 
-			for(Edge edge : s.edges)
-				if(edge.label() == EdgeLabel.THROWN && edge.target() == null) {
+			for (Edge edge : s.edges)
+				if (edge.label() == EdgeLabel.THROWN && edge.target() == null) {
 					delayedThrown = true;
 					break;
 				}
 
 			WorkingGraph finallyBody = visitFinallyClause(finallyClause, delayedThrown);
 
-			for(Edge edge : s.edges)
-				if(edge.target() == null)
+			for (Edge edge : s.edges)
+				if (edge.target() == null)
 					edge.setTarget(finallyBody.node);
 
 			s.edges.addAll(finallyBody.edges);
@@ -658,11 +674,13 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		sb.append(forInit == null ? "; " : forInit.accept(new TreePrinter()) + "; ");
 		sb.append(expression == null ? "; " : expression.accept(new TreePrinter()) + "; ");
 
-		if(forUpdate != null)
+		if (forUpdate != null)
 			sb.append(forUpdate.accept(new TreePrinter()));
 
 		sb.append(")");
 		s.node = g.buildNode(sb.toString());
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		WorkingGraph forBody = visitStatement(ctx.statement());
 
@@ -670,8 +688,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		s.edges.add(g.buildEdge(s.node, forBody.node, EdgeLabel.TRUE));
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.FALSE));
 
-		for(Edge edge : forBody.edges) {
-			if(edge.target() == null && edge.label() != EdgeLabel.THROWN)
+		for (Edge edge : forBody.edges) {
+			if (edge.target() == null && edge.label() != EdgeLabel.THROWN)
 				edge.setTarget(s.node);
 		}
 		// s.edges.addAll(forBody.edges);
@@ -680,15 +698,15 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		List<Edge> nonLabelledBreakEdges = forBody.breakEdges.get("");
 
-		if(nonLabelledBreakEdges != null) {
+		if (nonLabelledBreakEdges != null) {
 			s.edges.addAll(nonLabelledBreakEdges);
 			s.breakEdges.remove("");
 		}
 
 		List<Edge> nonLabelledContinueEdges = forBody.continueEdges.get("");
 
-		if(nonLabelledContinueEdges != null) {
-			for(Edge edge : nonLabelledContinueEdges) {
+		if (nonLabelledContinueEdges != null) {
+			for (Edge edge : nonLabelledContinueEdges) {
 				edge.setTarget(s.node);
 				s.edges.add(edge);
 			}
@@ -706,6 +724,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		ParenthesizedExpressionContext condition = ctx.parenthesizedExpression();
 
 		s.node = g.buildNode(nodeCounter++ + ": while " + condition.accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		WorkingGraph whileBody = visitStatement(ctx.statement());
 
@@ -713,8 +733,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		g.buildEdge(s.node, whileBody.node, EdgeLabel.TRUE);
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.FALSE));
 
-		for(Edge edge : whileBody.edges) {
-			if(edge.label() == EdgeLabel.THROWN)
+		for (Edge edge : whileBody.edges) {
+			if (edge.label() == EdgeLabel.THROWN)
 				s.edges.add(edge);
 			else
 				edge.target = s.node;
@@ -724,15 +744,15 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		List<Edge> nonLabelledBreakEdges = whileBody.breakEdges.get("");
 
-		if(nonLabelledBreakEdges != null) {
+		if (nonLabelledBreakEdges != null) {
 			s.edges.addAll(nonLabelledBreakEdges);
 			s.breakEdges.remove("");
 		}
 
 		List<Edge> nonLabelledContinueEdges = whileBody.continueEdges.get("");
 
-		if(nonLabelledContinueEdges != null) {
-			for(Edge edge : nonLabelledContinueEdges) {
+		if (nonLabelledContinueEdges != null) {
+			for (Edge edge : nonLabelledContinueEdges) {
 				edge.setTarget(s.node);
 				s.edges.add(edge);
 			}
@@ -750,25 +770,27 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		List<SwitchBlockStatementGroupContext> statementGroups = ctx.switchBlockStatementGroup();
 
 		s.node = g.buildNode(nodeCounter++ + ": switch " + ctx.parenthesizedExpression().accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
-		if(!statementGroups.isEmpty())
-			for(SwitchBlockStatementGroupContext group : statementGroups) {
+		if (!statementGroups.isEmpty())
+			for (SwitchBlockStatementGroupContext group : statementGroups) {
 				List<SwitchLabelContext> labels = group.switchLabel();
 				List<BlockStatementContext> statements = group.blockStatement();
 
 				WorkingGraph first = visitBlockStatement(statements.get(0));
 				TreePrinter printer = new TreePrinter();
 
-				for(SwitchLabelContext label : labels)
+				for (SwitchLabelContext label : labels)
 					s.edges.add(g.buildEdge(s.node, first.node, EdgeLabel.CASE, label.accept(printer)));
 
-				for(int i = 1, size = statements.size(); i < size; i++) {
+				for (int i = 1, size = statements.size(); i < size; i++) {
 					WorkingGraph later = visitBlockStatement(statements.get(i));
 
-					for(List<Edge> list : later.breakEdges.values())
+					for (List<Edge> list : later.breakEdges.values())
 						first.edges.addAll(list);
 
-					later.breakEdges.clear();					
+					later.breakEdges.clear();
 					first.connect(later);
 				}
 
@@ -779,7 +801,7 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		List<SwitchLabelContext> extraLabels = ctx.switchLabel();
 
-		for(SwitchLabelContext label : extraLabels)
+		for (SwitchLabelContext label : extraLabels)
 			s.edges.add(g.buildEdge(s.node, null, EdgeLabel.CASE, label.accept(new TreePrinter())));
 
 		return s;
@@ -791,7 +813,9 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g
-			.buildNode(nodeCounter++ + ": synchronized " + ctx.parenthesizedExpression().accept(new TreePrinter()));
+				.buildNode(nodeCounter++ + ": synchronized " + ctx.parenthesizedExpression().accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		WorkingGraph block = visitBlock(ctx.block());
@@ -807,6 +831,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": " + ctx.accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		return s;
@@ -818,6 +844,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": " + ctx.accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.THROWN));
 
 		return s;
@@ -829,6 +857,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": *EMPTY* ; ");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		return s;
@@ -840,6 +870,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": " + ctx.accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		return s;
@@ -868,7 +900,9 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g
-			.buildNode(nodeCounter++ + ": catch ( " + ctx.formalParameter().type().accept(new TreePrinter()) + ")");
+				.buildNode(nodeCounter++ + ": catch ( " + ctx.formalParameter().type().accept(new TreePrinter()) + ")");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		WorkingGraph body = visitBlock(ctx.block());
 
@@ -934,10 +968,10 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 	public WorkingGraph visitCompilationUnit(CompilationUnitContext ctx) {
 		QualifiedIdentifierContext pkg = ctx.qualifiedIdentifier();
 
-		if(pkg != null)
+		if (pkg != null)
 			nameStack.push(pkg.accept(new TreePrinter()));
 
-		for(TypeDeclarationContext typeDeclaration : ctx.typeDeclaration())
+		for (TypeDeclarationContext typeDeclaration : ctx.typeDeclaration())
 			typeDeclaration.accept(this);
 
 		return null;
@@ -1008,10 +1042,10 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		List<FormalParameterContext> formals = ctx.formalParameter();
 		int size = formals.size();
 
-		if(size > 0) {
+		if (size > 0) {
 			sb.append(formals.get(0).type().accept(new TreePrinter()));
 
-			for(int i = 1; i < size; i++) {
+			for (int i = 1; i < size; i++) {
 				sb.append(", ");
 				sb.append(formals.get(i).type().accept(new TreePrinter()));
 			}
@@ -1024,7 +1058,7 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 	@Override
 	public WorkingGraph visitMethodDeclaration(MethodDeclarationContext ctx) {
-		if(ctx.block() != null) {
+		if (ctx.block() != null) {
 			String identifier = ctx.identifier().getText();
 			String signature = getSignature(identifier, ctx.formalParameters());
 			ControlFlowGraph g = new ControlFlowGraph(getCurrentName() + "." + signature);
@@ -1035,21 +1069,21 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 			g.buildEdge(g.entry, s.node, EdgeLabel.BLANK);
 
-			for(Edge edge : s.edges) {
+			for (Edge edge : s.edges) {
 				EdgeLabel label = edge.label();
 
-				if(edge.target() == null) {
-					if(label == EdgeLabel.THROWN)
+				if (edge.target() == null) {
+					if (label == EdgeLabel.THROWN)
 						edge.setTarget(g.abruptExit);
 					else
 						edge.setTarget(g.normalExit);
 				}
 			}
 
-			if(!s.breakEdges.isEmpty())
+			if (!s.breakEdges.isEmpty())
 				throw new IllegalStateException("WorkingGraph still contains break edges: " + s);
 
-			if(!s.continueEdges.isEmpty())
+			if (!s.continueEdges.isEmpty())
 				throw new IllegalStateException("WorkingGraph still contains continue edges: " + s);
 		}
 
@@ -1125,21 +1159,21 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		g.buildEdge(g.entry, s.node, EdgeLabel.BLANK);
 
-		for(Edge edge : s.edges) {
+		for (Edge edge : s.edges) {
 			EdgeLabel label = edge.label();
 
-			if(edge.target() == null) {
-				if(label == EdgeLabel.THROWN)
+			if (edge.target() == null) {
+				if (label == EdgeLabel.THROWN)
 					edge.setTarget(g.abruptExit);
 				else
 					edge.setTarget(g.normalExit);
 			}
 		}
 
-		if(!s.breakEdges.isEmpty())
+		if (!s.breakEdges.isEmpty())
 			throw new IllegalStateException("WorkingGraph still contains break edges: " + s);
 
-		if(!s.continueEdges.isEmpty())
+		if (!s.continueEdges.isEmpty())
 			throw new IllegalStateException("WorkingGraph still contains continue edges: " + s);
 
 		return null;
@@ -1155,21 +1189,21 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		g.buildEdge(g.entry, s.node, EdgeLabel.BLANK);
 
-		for(Edge edge : s.edges) {
+		for (Edge edge : s.edges) {
 			EdgeLabel label = edge.label();
 
-			if(edge.target() == null) {
-				if(label == EdgeLabel.THROWN)
+			if (edge.target() == null) {
+				if (label == EdgeLabel.THROWN)
 					edge.setTarget(g.abruptExit);
 				else
 					edge.setTarget(g.normalExit);
 			}
 		}
 
-		if(!s.breakEdges.isEmpty())
+		if (!s.breakEdges.isEmpty())
 			throw new IllegalStateException("WorkingGraph still contains break edges: " + s);
 
-		if(!s.continueEdges.isEmpty())
+		if (!s.continueEdges.isEmpty())
 			throw new IllegalStateException("WorkingGraph still contains continue edges: " + s);
 
 		return null;
@@ -1204,21 +1238,21 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 
 		g.buildEdge(g.entry, s.node, EdgeLabel.BLANK);
 
-		for(Edge edge : s.edges) {
+		for (Edge edge : s.edges) {
 			EdgeLabel label = edge.label();
 
-			if(edge.target() == null) {
-				if(label == EdgeLabel.THROWN)
+			if (edge.target() == null) {
+				if (label == EdgeLabel.THROWN)
 					edge.setTarget(g.abruptExit);
 				else
 					edge.setTarget(g.normalExit);
 			}
 		}
 
-		if(!s.breakEdges.isEmpty())
+		if (!s.breakEdges.isEmpty())
 			throw new IllegalStateException("WorkingGraph still contains break edges: " + s);
 
-		if(!s.continueEdges.isEmpty())
+		if (!s.continueEdges.isEmpty())
 			throw new IllegalStateException("WorkingGraph still contains continue edges: " + s);
 
 		return null;
@@ -1230,17 +1264,19 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": body");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		WorkingGraph body = null;
 		ExplicitConstructorInvocationContext eci = ctx.explicitConstructorInvocation();
 
-		if(eci != null) {
+		if (eci != null) {
 			body = visitExplicitConstructorInvocation(eci);
 			s.connect(body);
 		}
 
-		for(BlockStatementContext statement : ctx.blockStatement()) {
+		for (BlockStatementContext statement : ctx.blockStatement()) {
 			body = visitBlockStatement(statement);
 			s.connect(body);
 		}
@@ -1254,6 +1290,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": " + ctx.accept(new TreePrinter()));
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 		s.edges.add(g.buildEdge(s.node, null, EdgeLabel.BLANK));
 
 		return s;
@@ -1288,6 +1326,8 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": else");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		WorkingGraph body = visitStatement(ctx.statement());
 
@@ -1309,12 +1349,14 @@ public class NodeBuilder implements Java1_4ParserVisitor<WorkingGraph> {
 		WorkingGraph s = new WorkingGraph();
 
 		s.node = g.buildNode(nodeCounter++ + ": finally");
+		// addlinenumber
+		s.node.setLineNumber(ctx.getStart().getLine());
 
 		WorkingGraph body = visitFinallyBlock(ctx.block(), delayedThrown);
 
 		s.edges.add(g.buildEdge(s.node, body.node, EdgeLabel.BLANK));
 
-		if(delayedThrown)
+		if (delayedThrown)
 			s.edges.add(g.buildEdge(s.node, body.node, EdgeLabel.THROWN_DELAYED));
 
 		return s;
@@ -1328,31 +1370,31 @@ class WorkingGraph {
 	public Map<String, List<Edge>> continueEdges = new HashMap<>();
 
 	public void connect(WorkingGraph s) {
-		if(s == null)
+		if (s == null)
 			return;
-		
-		for(Edge edge : edges) {
-			if(edge.label() != EdgeLabel.THROWN && edge.target == null)
+
+		for (Edge edge : edges) {
+			if (edge.label() != EdgeLabel.THROWN && edge.target == null)
 				edge.setTarget(s.node);
 		}
 
 		edges.addAll(s.edges);
 
-		for(String label : s.breakEdges.keySet()) {
+		for (String label : s.breakEdges.keySet()) {
 			List<Edge> sEdges = s.breakEdges.get(label);
 			List<Edge> thisEdges = breakEdges.get(label);
 
-			if(thisEdges == null)
+			if (thisEdges == null)
 				breakEdges.put(label, sEdges);
 			else
 				thisEdges.addAll(sEdges);
 		}
 
-		for(String label : s.continueEdges.keySet()) {
+		for (String label : s.continueEdges.keySet()) {
 			List<Edge> sEdges = s.continueEdges.get(label);
 			List<Edge> thisEdges = continueEdges.get(label);
 
-			if(thisEdges == null)
+			if (thisEdges == null)
 				continueEdges.put(label, sEdges);
 			else
 				thisEdges.addAll(sEdges);

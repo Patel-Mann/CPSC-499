@@ -40,52 +40,13 @@ public class CFGBuilder {
 
         ControlFlowGraph cfg = cfgs.get(0);
 
-        extractLineNumbers(cfg, tree);
-
         System.out.println("CFG built: " + cfg.nodes().size() + " nodes, " + cfg.edges().size() + " edges");
 
         return cfg;
     }
 
-    private void extractLineNumbers(ControlFlowGraph cfg, ParseTree tree) {
-        Map<String, Integer> labelToLine = new HashMap<>();
-        collectLineNumbers(tree, labelToLine);
-
-        for (Node node : cfg.nodes()) {
-            String label = node.label();
-            Integer line = labelToLine.get(label);
-
-            if (line == null) {
-                for (Map.Entry<String, Integer> entry : labelToLine.entrySet()) {
-                    if (label.contains(entry.getKey()) || entry.getKey().contains(label)) {
-                        line = entry.getValue();
-                        break;
-                    }
-                }
-            }
-
-            nodeToLine.put(node, line != null ? line : -1);
-        }
-    }
-
-    private void collectLineNumbers(ParseTree tree, Map<String, Integer> map) {
-        if (tree instanceof ParserRuleContext) {
-            ParserRuleContext ctx = (ParserRuleContext) tree;
-            if (ctx.start != null) {
-                String text = ctx.getText();
-                if (text != null && text.length() < 200 && text.length() > 0) {
-                    map.put(text, ctx.start.getLine());
-                }
-            }
-        }
-
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            collectLineNumbers(tree.getChild(i), map);
-        }
-    }
-
     public int getLineNumber(Node node) {
-        return nodeToLine.getOrDefault(node, -1);
+        return node.getLineNumber();
     }
 
     public List<Integer> getAllLineNumbers() {

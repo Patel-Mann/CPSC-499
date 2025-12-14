@@ -16,11 +16,21 @@ public class Node {
 	private Set<Edge> outEdges = new HashSet<>();
 	private String label;
 
+	private int lineNumber;
+
 	Node(String label) {
-		if(label == null || label.length() < 1)
+		if (label == null || label.length() < 1)
 			throw new IllegalArgumentException();
 
 		this.label = label;
+	}
+
+	public void setLineNumber(int lineNumber) {
+		this.lineNumber = lineNumber;
+	}
+
+	public int getLineNumber() {
+		return this.lineNumber;
 	}
 
 	/**
@@ -63,20 +73,21 @@ public class Node {
 	 * Adds the indicated edge to this node as an in-edge.
 	 * 
 	 * @param edge
-	 *            The edge to be added as an in-edge
+	 *             The edge to be added as an in-edge
 	 * @throws IllegalArgumentException
-	 *             If the edge is null.
+	 *                                  If the edge is null.
 	 * @throws IllegalStateException
-	 *             If the target node of the edge is not identical to this node.
+	 *                                  If the target node of the edge is not
+	 *                                  identical to this node.
 	 */
 	public void addInEdge(Edge edge) {
-		if(edge == null)
+		if (edge == null)
 			throw new IllegalArgumentException();
 
-		if(edge.target() != this)
+		if (edge.target() != this)
 			throw new IllegalStateException();
 
-		if(edge.source().graph() == null || edge.target().graph() == null)
+		if (edge.source().graph() == null || edge.target().graph() == null)
 			throw new IllegalStateException();
 
 		inEdges.add(edge);
@@ -86,31 +97,31 @@ public class Node {
 	 * Adds the indicated edge to this node as an out-edge.
 	 * 
 	 * @param edge
-	 *            The edge to be added as an out-edge
+	 *             The edge to be added as an out-edge
 	 * @throws IllegalArgumentException
-	 *             If the edge is null.
+	 *                                  If the edge is null.
 	 * @throws IllegalStateException
-	 *             If the source node of the edge is not identical to this node.
+	 *                                  If the source node of the edge is not
+	 *                                  identical to this node.
 	 */
 	public void addOutEdge(Edge edge) {
-		if(edge == null)
+		if (edge == null)
 			throw new IllegalArgumentException();
 
-		if(edge.source() != this)
+		if (edge.source() != this)
 			throw new IllegalStateException();
 
-		if(edge.source().graph() == null || (edge.target() != null && edge.target().graph() == null))
+		if (edge.source().graph() == null || (edge.target() != null && edge.target().graph() == null))
 			throw new IllegalStateException();
 
 		outEdges.add(edge);
 	}
 
 	void setGraph(ControlFlowGraph graph) {
-		if(this.graph != null) {
-			if(graph == null)
+		if (this.graph != null) {
+			if (graph == null)
 				this.graph = null;
-		}
-		else if(graph == null)
+		} else if (graph == null)
 			throw new IllegalArgumentException();
 		else
 			this.graph = graph;
@@ -123,8 +134,8 @@ public class Node {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof Node) {
-			Node other = (Node)obj;
+		if (obj instanceof Node) {
+			Node other = (Node) obj;
 
 			return label.equals(other.label);
 		}
@@ -142,8 +153,8 @@ public class Node {
 
 		boolean start = true;
 
-		for(Edge edge : inEdges) {
-			if(start)
+		for (Edge edge : inEdges) {
+			if (start)
 				start = false;
 			else
 				sb.append(", ");
@@ -155,8 +166,8 @@ public class Node {
 
 		start = true;
 
-		for(Edge edge : outEdges) {
-			if(start)
+		for (Edge edge : outEdges) {
+			if (start)
 				start = false;
 			else
 				sb.append(", ");
