@@ -88,13 +88,15 @@ public class PDG {
     }
 
     /**
-     * Extract variable definitions from a statement simple pattern matching for Java 1.4
+     * Extract variable definitions from a statement simple pattern matching for
+     * Java 1.4
      */
     private Set<String> extractDefs(String statement) {
         Set<String> vars = new HashSet<>();
 
         // Skip special nodes
-        if (statement.startsWith("*")) return vars;
+        if (statement.startsWith("*"))
+            return vars;
 
         if (statement.contains("=") && !statement.contains("==")) {
             String[] parts = statement.split("=");
@@ -119,13 +121,15 @@ public class PDG {
                     String[] initParts = forParts[0].split("=");
                     if (initParts.length > 0) {
                         String var = initParts[0].trim().replaceAll("[^a-zA-Z0-9_]", "");
-                        if (!var.isEmpty()) vars.add(var);
+                        if (!var.isEmpty())
+                            vars.add(var);
                     }
                 }
                 String update = forParts[forParts.length - 1];
                 if (update.contains("++") || update.contains("--")) {
                     String var = update.replaceAll("[^a-zA-Z0-9_]", "");
-                    if (!var.isEmpty()) vars.add(var);
+                    if (!var.isEmpty())
+                        vars.add(var);
                 }
             }
         }
@@ -139,14 +143,15 @@ public class PDG {
     private Set<String> extractUses(String statement) {
         Set<String> vars = new HashSet<>();
 
-        if (statement.startsWith("*")) return vars;
+        if (statement.startsWith("*"))
+            return vars;
         String[] tokens = statement.split("[\\s+\\-*/=<>!&|(){}\\[\\];,.]");
         for (String token : tokens) {
             token = token.trim();
             if (!token.isEmpty() &&
-                Character.isJavaIdentifierStart(token.charAt(0)) &&
-                !isKeyword(token) &&
-                !token.matches("\\d+")) { r
+                    Character.isJavaIdentifierStart(token.charAt(0)) &&
+                    !isKeyword(token) &&
+                    !token.matches("\\d+")) {
                 vars.add(token);
             }
         }
@@ -160,11 +165,10 @@ public class PDG {
      */
     private boolean isKeyword(String word) {
         Set<String> keywords = new HashSet<>(Arrays.asList(
-            "if", "else", "while", "for", "do", "return", "break", "continue",
-            "int", "double", "float", "char", "boolean", "void", "String",
-            "new", "null", "true", "false", "class", "public", "private",
-            "static", "final", "this", "super", "try", "catch", "throw", "throws"
-        ));
+                "if", "else", "while", "for", "do", "return", "break", "continue",
+                "int", "double", "float", "char", "boolean", "void", "String",
+                "new", "null", "true", "false", "class", "public", "private",
+                "static", "final", "this", "super", "try", "catch", "throw", "throws"));
         return keywords.contains(word);
     }
 
@@ -219,10 +223,13 @@ public class PDG {
     }
 
     private boolean mapsEqual(Map<String, Set<String>> m1, Map<String, Set<String>> m2) {
-        if (m1.size() != m2.size()) return false;
+        if (m1.size() != m2.size())
+            return false;
         for (String key : m1.keySet()) {
-            if (!m2.containsKey(key)) return false;
-            if (!m1.get(key).equals(m2.get(key))) return false;
+            if (!m2.containsKey(key))
+                return false;
+            if (!m1.get(key).equals(m2.get(key)))
+                return false;
         }
         return true;
     }
@@ -234,7 +241,6 @@ public class PDG {
         }
         return count;
     }
-
 
     public Set<String> getDependencies(String nodeLabel) {
         Set<String> all = new HashSet<>();
@@ -277,27 +283,27 @@ public class PDG {
         return nodes;
     }
 
-     public void printPDG() {
-         System.out.println("CONTROL DEPENDENCIES:");
-         for (Map.Entry<String, Set<String>> entry : controlDeps.entrySet()) {
-             if (!entry.getValue().isEmpty()) {
-                 System.out.println("  " + entry.getKey());
-                 for (String dep : entry.getValue()) {
-                     System.out.println("    <- " + dep);
-                 }
-             }
-         }
+    public void printPDG() {
+        System.out.println("CONTROL DEPENDENCIES:");
+        for (Map.Entry<String, Set<String>> entry : controlDeps.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                System.out.println("  " + entry.getKey());
+                for (String dep : entry.getValue()) {
+                    System.out.println("    <- " + dep);
+                }
+            }
+        }
 
-         System.out.println("\nDATA DEPENDENCIES:");
-         for (Map.Entry<String, Set<String>> entry : dataDeps.entrySet()) {
-             if (!entry.getValue().isEmpty()) {
-                 System.out.println("  " + entry.getKey());
-                 for (String dep : entry.getValue()) {
-                     System.out.println("    <- " + dep);
-                 }
-             }
-         }
-     }
+        System.out.println("\nDATA DEPENDENCIES:");
+        for (Map.Entry<String, Set<String>> entry : dataDeps.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                System.out.println("  " + entry.getKey());
+                for (String dep : entry.getValue()) {
+                    System.out.println("    <- " + dep);
+                }
+            }
+        }
+    }
 
     public Map<String, Set<String>> getControlDependencies() {
         return new HashMap<>(controlDeps);
