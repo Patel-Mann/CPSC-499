@@ -43,7 +43,7 @@ public class PDGTool {
 
         // Step 3: Show results
         System.out.println("\n=== Available Lines ===");
-        List<Integer> lines = cfgBuilder.getAllLineNumbers();
+        List<Integer> lines = cfg.getAllLineNumbers();
         System.out.println("Lines with statements: " + lines);
 
         // If specific line requested, compute impact
@@ -59,7 +59,7 @@ public class PDGTool {
     }
 
     private static void computeImpact(ControlFlowGraph cfg, PDG pdg,
-                                      CFGBuilder cfgBuilder, int targetLine) {
+            CFGBuilder cfgBuilder, int targetLine) {
         System.out.println("\n=== Impact Analysis for Line " + targetLine + " ===");
 
         // Find nodes at target line

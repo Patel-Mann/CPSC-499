@@ -49,7 +49,7 @@ public class ControlFlowGraph {
 	 * {@link Node#equals(Object)} method.
 	 * 
 	 * @param n
-	 *            The node to look for.
+	 *          The node to look for.
 	 * @return true if this CFG contains the indicated node; otherwise, false.
 	 */
 	public boolean containsNode(Node n) {
@@ -63,12 +63,12 @@ public class ControlFlowGraph {
 	 * Constructor
 	 * 
 	 * @param name
-	 *            The name of the graph. Cannot be null or empty.
+	 *             The name of the graph. Cannot be null or empty.
 	 * @throws IllegalArgumentException
-	 *             If the name is null or empty.
+	 *                                  If the name is null or empty.
 	 */
 	public ControlFlowGraph(String name) {
-		if(name == null || name.length() < 1)
+		if (name == null || name.length() < 1)
 			throw new IllegalArgumentException();
 
 		this.name = name;
@@ -97,10 +97,21 @@ public class ControlFlowGraph {
 	public List<Node> nodes() {
 		ArrayList<Node> result = new ArrayList<>();
 
-		for(List<Node> list : nodes.values())
+		for (List<Node> list : nodes.values())
 			result.addAll(list);
 
 		return Collections.unmodifiableList(result);
+	}
+
+	public List<Integer> getAllLineNumbers() {
+		List<Integer> lineNumbers = new ArrayList<>();
+
+		for (List<Node> listNodes : this.nodes.values()) {
+			for (Node n : listNodes) {
+				lineNumbers.add(n.getLineNumber());
+			}
+		}
+		return lineNumbers;
 	}
 
 	/**
@@ -116,13 +127,13 @@ public class ControlFlowGraph {
 	 * Accesses the first node with label as its label.
 	 * 
 	 * @param label
-	 *            The label to locate. Must not be null.
+	 *              The label to locate. Must not be null.
 	 * @return The first node with the indicated label, or null if nonesuch exists.
 	 */
 	public Node findNode(String label) {
 		List<Node> list = nodes.get(label);
 
-		if(list != null && list.size() > 0)
+		if (list != null && list.size() > 0)
 			return list.get(0);
 
 		return null;
@@ -132,13 +143,13 @@ public class ControlFlowGraph {
 	 * Accesses the first node with label as its label.
 	 * 
 	 * @param label
-	 *            The label to locate. Must not be null.
+	 *              The label to locate. Must not be null.
 	 * @return The first node with the indicated label, or null if nonesuch exists.
 	 */
 	public List<Node> findNodes(String label) {
 		List<Node> list = nodes.get(label);
 
-		if(list != null)
+		if (list != null)
 			return Collections.unmodifiableList(list);
 
 		return null;
@@ -148,20 +159,20 @@ public class ControlFlowGraph {
 	 * Builds a node on this graph with the indicated label.
 	 * 
 	 * @param label
-	 *            A label for the new node that may be used in identifying it.
-	 *            Cannot be null or empty.
+	 *              A label for the new node that may be used in identifying it.
+	 *              Cannot be null or empty.
 	 * @return The newly created node.
 	 * @throws IllegalArgumentException
-	 *             If the label is null or empty.
+	 *                                  If the label is null or empty.
 	 */
 	public Node buildNode(String label) {
-		if(label == null || label.length() < 1)
+		if (label == null || label.length() < 1)
 			throw new IllegalArgumentException();
 
 		Node node = new Node(label);
 		List<Node> list;
 
-		if(nodes.containsKey(label))
+		if (nodes.containsKey(label))
 			list = nodes.get(label);
 		else {
 			list = new ArrayList<>();
@@ -178,19 +189,20 @@ public class ControlFlowGraph {
 	 * Builds an edge on this graph with the indicated label.
 	 * 
 	 * @param source
-	 *            The source node. Cannot be null.
+	 *               The source node. Cannot be null.
 	 * @param target
-	 *            The target node. Cannot be null.
+	 *               The target node. Cannot be null.
 	 * @param label
-	 *            A label for the new edge that may be used in identifying it.
-	 *            Cannot be null or empty.
+	 *               A label for the new edge that may be used in identifying it.
+	 *               Cannot be null or empty.
 	 * @return The newly created edge.
 	 * @throws IllegalArgumentException
-	 *             If the label is null or empty or either of the indicated nodes is
-	 *             null.
+	 *                                  If the label is null or empty or either of
+	 *                                  the indicated nodes is
+	 *                                  null.
 	 */
 	public Edge buildEdge(Node source, Node target, EdgeLabel label) {
-		if(source == null || label == null)
+		if (source == null || label == null)
 			throw new IllegalArgumentException();
 
 		Edge edge = new Edge(source, target, label);
@@ -199,7 +211,7 @@ public class ControlFlowGraph {
 		edge.setGraph(this);
 		source.addOutEdge(edge);
 
-		if(target != null)
+		if (target != null)
 			target.addInEdge(edge);
 
 		return edge;
@@ -209,22 +221,25 @@ public class ControlFlowGraph {
 	 * Builds an edge on this graph with the indicated label.
 	 * 
 	 * @param source
-	 *            The source node. Cannot be null.
+	 *                      The source node. Cannot be null.
 	 * @param target
-	 *            The target node. Cannot be null.
+	 *                      The target node. Cannot be null.
 	 * @param label
-	 *            A label for the new edge that may be used in identifying it.
-	 *            Cannot be null or empty.
+	 *                      A label for the new edge that may be used in identifying
+	 *                      it.
+	 *                      Cannot be null or empty.
 	 * @param extendedLabel
-	 *            An extension to the label for the new edge that may be used in
-	 *            identifying it.
+	 *                      An extension to the label for the new edge that may be
+	 *                      used in
+	 *                      identifying it.
 	 * @return The newly created edge.
 	 * @throws IllegalArgumentException
-	 *             If the label is null or empty or either of the indicated nodes is
-	 *             null.
+	 *                                  If the label is null or empty or either of
+	 *                                  the indicated nodes is
+	 *                                  null.
 	 */
 	public Edge buildEdge(Node source, Node target, EdgeLabel label, String extendedLabel) {
-		if(source == null || label == null)
+		if (source == null || label == null)
 			throw new IllegalArgumentException();
 
 		Edge edge = new Edge(source, target, label, extendedLabel);
@@ -233,7 +248,7 @@ public class ControlFlowGraph {
 		edge.setGraph(this);
 		source.addOutEdge(edge);
 
-		if(target != null)
+		if (target != null)
 			target.addInEdge(edge);
 
 		return edge;
@@ -241,10 +256,10 @@ public class ControlFlowGraph {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(!(obj instanceof ControlFlowGraph))
+		if (!(obj instanceof ControlFlowGraph))
 			return false;
 
-		ControlFlowGraph other = (ControlFlowGraph)obj;
+		ControlFlowGraph other = (ControlFlowGraph) obj;
 
 		return areEqual(nodes, other.nodes) && areEqual(edges, other.edges);
 	}
@@ -253,28 +268,28 @@ public class ControlFlowGraph {
 		List<Node> list1 = new ArrayList<>();
 		List<Node> list2 = new ArrayList<>();
 
-		for(List<Node> nodeList : nodes1.values())
+		for (List<Node> nodeList : nodes1.values())
 			list1.addAll(nodeList);
 
-		for(List<Node> nodeList : nodes2.values())
+		for (List<Node> nodeList : nodes2.values())
 			list2.addAll(nodeList);
 
-		if(list1.size() != list2.size())
+		if (list1.size() != list2.size())
 			return false;
 
-		for(Node n : list1)
-			if(!list2.contains(n))
+		for (Node n : list1)
+			if (!list2.contains(n))
 				return false;
 
 		return true;
 	}
 
 	private static boolean areEqual(List<Edge> edges1, List<Edge> edges2) {
-		if(edges1.size() != edges2.size())
+		if (edges1.size() != edges2.size())
 			return false;
 
-		for(Edge edge : edges1) {
-			if(!edges2.contains(edge))
+		for (Edge edge : edges1) {
+			if (!edges2.contains(edge))
 				return false;
 		}
 
