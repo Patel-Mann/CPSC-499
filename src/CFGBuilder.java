@@ -46,6 +46,7 @@ public class CFGBuilder {
 
         return cfg;
     }
+
     private void extractLineNumbers(ControlFlowGraph cfg, ParseTree tree) {
         Map<String, Integer> labelToLine = new HashMap<>();
         collectLineNumbers(tree, labelToLine);
@@ -67,7 +68,6 @@ public class CFGBuilder {
         }
     }
 
-
     private void collectLineNumbers(ParseTree tree, Map<String, Integer> map) {
         if (tree instanceof ParserRuleContext) {
             ParserRuleContext ctx = (ParserRuleContext) tree;
@@ -84,7 +84,6 @@ public class CFGBuilder {
         }
     }
 
-
     public int getLineNumber(Node node) {
         return nodeToLine.getOrDefault(node, -1);
     }
@@ -92,7 +91,8 @@ public class CFGBuilder {
     public List<Integer> getAllLineNumbers() {
         Set<Integer> lines = new TreeSet<>();
         for (Integer line : nodeToLine.values()) {
-            if (line > 0) lines.add(line);
+            if (line > 0)
+                lines.add(line);
         }
         return new ArrayList<>(lines);
     }
