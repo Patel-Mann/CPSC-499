@@ -6,8 +6,6 @@ import java.util.*;
 
 public class CFGBuilder {
 
-    private Map<Node, Integer> nodeToLine = new HashMap<>();
-
     /**
      * Build CFG from a Java file
      */
@@ -47,15 +45,6 @@ public class CFGBuilder {
 
     public int getLineNumber(Node node) {
         return node.getLineNumber();
-    }
-
-    public List<Integer> getAllLineNumbers() {
-        Set<Integer> lines = new TreeSet<>();
-        for (Integer line : nodeToLine.values()) {
-            if (line > 0)
-                lines.add(line);
-        }
-        return new ArrayList<>(lines);
     }
 
     public List<Node> findNodesAtLine(ControlFlowGraph cfg, int lineNumber) {
