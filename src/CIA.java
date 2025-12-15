@@ -7,7 +7,7 @@ import java.util.*;
  * PDG Tool: Change Impact Analysis
  * Usage: java PDGTool <java-file> [line-number]
  */
-public class PDGTool {
+public class CIA {
 
     public static void main(String[] args) {
         if (args.length < 1) {

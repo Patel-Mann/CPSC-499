@@ -69,6 +69,7 @@ public class PDG {
 
         // 2. Compute reaching definitions
         Map<String, Map<String, Set<String>>> reaching = computeReachingDefinitions(defs);
+        // TODO: check what happens whena node has multiple variable definitions
 
         // 3. Build data dependencies
         for (Node node : cfg.nodes()) {
