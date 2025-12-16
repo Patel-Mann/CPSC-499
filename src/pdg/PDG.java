@@ -2,6 +2,8 @@ package pdg;
 
 import org.lsmr.cfg.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Simple Program Dependence Graph (PDG)
@@ -66,10 +68,11 @@ public class PDG {
             defs.put(label, extractDefs(label));
             uses.put(label, extractUses(label));
         }
+        System.out.println(defs.toString());
+        System.out.println(uses.toString());
 
         // 2. Compute reaching definitions
         Map<String, Map<String, Set<String>>> reaching = computeReachingDefinitions(defs);
-        // TODO: check what happens whena node has multiple variable definitions
 
         // 3. Build data dependencies
         for (Node node : cfg.nodes()) {
@@ -94,24 +97,31 @@ public class PDG {
      */
     private Set<String> extractDefs(String statement) {
         Set<String> vars = new HashSet<>();
-
         // Skip special nodes
         if (statement.startsWith("*"))
             return vars;
 
         if (statement.contains("=") && !statement.contains("==")) {
             String[] parts = statement.split("=");
-            if (parts.length > 0) {
-                String lhs = parts[0].trim();
-                String[] tokens = lhs.split("\\s+");
-                if (tokens.length > 0) {
-                    String varName = tokens[tokens.length - 1];
-                    varName = varName.replaceAll("[\\[\\].();,]", "");
-                    if (!varName.isEmpty() && Character.isJavaIdentifierStart(varName.charAt(0))) {
-                        vars.add(varName);
-                    }
-                }
+            // Debug proper variabel naem selection:
+            // System.out.printf("Statement: %s", statement);
+            // print anything before "="
+            // System.out.println(parts[0]);
+
+            // retrieve teh first "word" before equals
+            Pattern p = Pattern.compile("(\\w+)\\s*$");
+            Matcher m = p.matcher(parts[0]);
+            String varLabel = "-1";
+
+            if (m.find()) {
+                varLabel = m.group(1);
             }
+            if ((!varLabel.isEmpty() || varLabel == "-1") && Character.isJavaIdentifierStart(varLabel.charAt(0))) {
+                // print variable to be assigned
+                // System.out.println(varLabel);
+                vars.add(varLabel);
+            }
+
         }
 
         if (statement.contains("for") && statement.contains("(")) {
@@ -143,20 +153,25 @@ public class PDG {
      */
     private Set<String> extractUses(String statement) {
         Set<String> vars = new HashSet<>();
+        System.out.printf("Uses Statement: %s \n", statement);
+        // make sure we only work on the rhs
+        int eq = statement.indexOf('=');
+        if (eq != -1) {
+            statement = statement.substring(eq + 1);
+        }
+        // Split on any non-identifier character (keeps letters/digits/_ together)
+        String[] tokens = statement.split("[^a-zA-Z0-9_]+");
 
-        if (statement.startsWith("*"))
-            return vars;
-        String[] tokens = statement.split("[\\s+\\-*/=<>!&|(){}\\[\\];,.]");
         for (String token : tokens) {
-            token = token.trim();
-            if (!token.isEmpty() &&
-                    Character.isJavaIdentifierStart(token.charAt(0)) &&
-                    !isKeyword(token) &&
-                    !token.matches("\\d+")) {
+            if (!token.isEmpty()
+                    && Character.isJavaIdentifierStart(token.charAt(0))
+                    && !isKeyword(token)
+                    && !token.matches("\\d+")) {
+                System.out.println("Token to add:");
+                System.out.println(token);
                 vars.add(token);
             }
         }
-        vars.removeAll(extractDefs(statement));
 
         return vars;
     }
@@ -169,7 +184,8 @@ public class PDG {
                 "if", "else", "while", "for", "do", "return", "break", "continue",
                 "int", "double", "float", "char", "boolean", "void", "String",
                 "new", "null", "true", "false", "class", "public", "private",
-                "static", "final", "this", "super", "try", "catch", "throw", "throws"));
+                "static", "final", "this", "super", "try", "catch", "throw", "throws", "EXIT", "block", "ENTRY",
+                "THROWN"));
         return keywords.contains(word);
     }
 

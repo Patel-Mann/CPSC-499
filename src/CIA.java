@@ -43,6 +43,7 @@ public class CIA {
 
         // Step 3: Show results
         System.out.println("\n=== Available Lines ===");
+
         List<Integer> lines = cfg.getAllLineNumbers();
         System.out.println("Lines with statements: " + lines);
 
