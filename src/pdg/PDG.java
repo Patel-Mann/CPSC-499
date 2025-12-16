@@ -32,22 +32,35 @@ public class PDG {
     private void computeControlDependencies() {
         System.out.println("\tComputing control dependencies...");
 
-        for (Node node : cfg.nodes()) {
-            Set<String> deps = new HashSet<>();
+        boolean changed = true;
 
-            for (Edge inEdge : node.inEdges()) {
-                Node pred = inEdge.source();
+        while (changed) {
+            changed = false;
 
-                if (pred.outEdges().size() > 1) {
-                    deps.add(pred.label());
+            for (Node node : cfg.nodes()) {
+                Set<String> deps = new HashSet<>();
 
+                for (Edge inEdge : node.inEdges()) {
+                    Node pred = inEdge.source();
+
+                    // get all deps from
                     if (controlDeps.containsKey(pred.label())) {
                         deps.addAll(controlDeps.get(pred.label()));
                     }
+
+                    // update deps if pred is a branching node liek if and while
+                    if (pred.outEdges().size() > 1) {
+                        deps.add(pred.label());
+                    }
+                }
+                // compare prev iteration to current if we found changes in depns update control
+                // deps. else exit loop
+                Set<String> oldDeps = controlDeps.get(node.label());
+                if (oldDeps == null || !oldDeps.equals(deps)) {
+                    controlDeps.put(node.label(), deps);
+                    changed = true;
                 }
             }
-
-            controlDeps.put(node.label(), deps);
         }
 
         System.out.println("\t\tFound " + countDependencies(controlDeps) + " control dependencies");
@@ -97,50 +110,67 @@ public class PDG {
      */
     private Set<String> extractDefs(String statement) {
         Set<String> vars = new HashSet<>();
-        // Skip special nodes
-        if (statement.startsWith("*"))
+        // exclude comments
+        if (statement.startsWith("*") || statement.startsWith("/"))
             return vars;
 
-        if (statement.contains("=") && !statement.contains("==")) {
-            String[] parts = statement.split("=");
-            // Debug proper variabel naem selection:
-            // System.out.printf("Statement: %s", statement);
-            // print anything before "="
-            // System.out.println(parts[0]);
+        // used for normal assignments exclude anything else
+        boolean isDef = statement.contains("=") &&
+                !statement.contains("==") &&
+                !statement.contains("<=") &&
+                !statement.contains(">=") &&
+                !statement.contains("!=");
 
-            // retrieve teh first "word" before equals
-            Pattern p = Pattern.compile("(\\w+)\\s*$");
-            Matcher m = p.matcher(parts[0]);
-            String varLabel = "-1";
+        if (isDef) {
+            String lhs = statement.substring(0, statement.indexOf('=')).trim();
 
-            if (m.find()) {
-                varLabel = m.group(1);
-            }
-            if ((!varLabel.isEmpty() || varLabel == "-1") && Character.isJavaIdentifierStart(varLabel.charAt(0))) {
-                // print variable to be assigned
-                // System.out.println(varLabel);
-                vars.add(varLabel);
+            // remove left over operators after getting teh substring
+            if (lhs.endsWith("+") || lhs.endsWith("-") || lhs.endsWith("*") || lhs.endsWith("/") || lhs.endsWith("%")
+                    || lhs.endsWith("&") || lhs.endsWith("|") || lhs.endsWith("^")) {
+                lhs = lhs.substring(0, lhs.length() - 1).trim();
             }
 
+            // for possible arrays
+            if (lhs.contains("[")) {
+                lhs = lhs.substring(0, lhs.indexOf('[')).trim();
+            }
+
+            // get last "word" splits by whitespace
+            String[] tokens = lhs.split("\\s+");
+            if (tokens.length > 0) {
+                String var = tokens[tokens.length - 1];
+                if (!var.isEmpty() && Character.isJavaIdentifierStart(var.charAt(0))) {
+                    vars.add(var);
+                }
+            }
         }
 
+        // Handle For Loops
         if (statement.contains("for") && statement.contains("(")) {
-            String forPart = statement.substring(statement.indexOf("("));
-            String[] forParts = forPart.split(";");
-            if (forParts.length >= 3) {
-                if (forParts[0].contains("=")) {
-                    String[] initParts = forParts[0].split("=");
-                    if (initParts.length > 0) {
-                        String var = initParts[0].trim().replaceAll("[^a-zA-Z0-9_]", "");
+            String inside = statement.substring(statement.indexOf("(") + 1);
+            if (inside.contains(";")) {
+                String[] parts = inside.split(";");
+
+                // Init def: "int i = 0"
+                if (parts.length > 0 && parts[0].contains("=")) {
+                    String part = parts[0].substring(0, parts[0].indexOf('=')).trim();
+                    String[] tokens = part.split("\\s+");
+                    if (tokens.length > 0) {
+                        // retrieve last element
+                        String var = tokens[tokens.length - 1];
+                        vars.add(var);
+                    }
+                }
+
+                // Update def for: "i++", "i--", "++i"
+                if (parts.length >= 3) {
+                    String update = parts[parts.length - 1];
+                    update = update.replaceAll("\\)", ""); // remove closing paren if present
+                    if (update.contains("++") || update.contains("--")) {
+                        String var = update;
                         if (!var.isEmpty())
                             vars.add(var);
                     }
-                }
-                String update = forParts[forParts.length - 1];
-                if (update.contains("++") || update.contains("--")) {
-                    String var = update.replaceAll("[^a-zA-Z0-9_]", "");
-                    if (!var.isEmpty())
-                        vars.add(var);
                 }
             }
         }
@@ -153,26 +183,53 @@ public class PDG {
      */
     private Set<String> extractUses(String statement) {
         Set<String> vars = new HashSet<>();
-        System.out.printf("Uses Statement: %s \n", statement);
-        // make sure we only work on the rhs
-        int eq = statement.indexOf('=');
-        if (eq != -1) {
-            statement = statement.substring(eq + 1);
-        }
-        // Split on any non-identifier character (keeps letters/digits/_ together)
-        String[] tokens = statement.split("[^a-zA-Z0-9_]+");
 
-        for (String token : tokens) {
-            if (!token.isEmpty()
-                    && Character.isJavaIdentifierStart(token.charAt(0))
-                    && !isKeyword(token)
-                    && !token.matches("\\d+")) {
-                System.out.println("Token to add:");
-                System.out.println(token);
-                vars.add(token);
+        // check for normal definition
+        boolean isDef = statement.contains("=") &&
+                !statement.contains("==") &&
+                !statement.contains("<=") &&
+                !statement.contains(">=") &&
+                !statement.contains("!=");
+
+        String searchArea = statement;
+
+        // Two cases: 1. normal def only RHS matters 2. compound def both LHS and RHS
+        // matter
+        if (isDef) {
+            int eqIndex = statement.indexOf('=');
+            // check for += -= etc. if it exists we found a compound def
+            boolean isCompound = eqIndex > 0 && "+-*/%&|^".indexOf(statement.charAt(eqIndex - 1)) != -1;
+
+            if (isCompound) {
+                // both RHS & LHS
+                searchArea = statement;
+            } else {
+                // only RHS
+                searchArea = statement.substring(eqIndex + 1); // skip anything before =
             }
         }
 
+        // Tokenize and filter
+        // fancy split on non-identifier characters to extract all variables used
+        String[] tokens = searchArea.split("[^a-zA-Z0-9_]+");
+
+        for (int i = 0; i < tokens.length; i++) {
+            String token = tokens[i];
+            if (token.isEmpty())
+                continue;
+
+            // Basic validity checks
+            if (Character.isJavaIdentifierStart(token.charAt(0))
+                    && !isKeyword(token)
+                    && !token.matches("\\d+")) {
+                // skip if its a method
+                boolean isMethodCall = statement.matches(".*\\b" + token + "\\s*\\(.*");
+
+                if (!isMethodCall) {
+                    vars.add(token);
+                }
+            }
+        }
         return vars;
     }
 
@@ -200,10 +257,8 @@ public class PDG {
             reaching.put(node.label(), new HashMap<>());
         }
         boolean changed = true;
-        int iterations = 0;
-        while (changed && iterations < 100) {
+        while (changed) {
             changed = false;
-            iterations++;
 
             for (Node node : cfg.nodes()) {
                 String label = node.label();
@@ -212,24 +267,37 @@ public class PDG {
                 for (Edge inEdge : node.inEdges()) {
                     Node pred = inEdge.source();
                     String predLabel = pred.label();
+
+                    Map<String, Set<String>> predOut = new HashMap<>();
+
+                    // In predecesor def
                     if (reaching.containsKey(predLabel)) {
                         for (Map.Entry<String, Set<String>> entry : reaching.get(predLabel).entrySet()) {
-                            String var = entry.getKey();
-                            newReaching.putIfAbsent(var, new HashSet<>());
-                            newReaching.get(var).addAll(entry.getValue());
+                            // create a copy of the set
+                            predOut.put(entry.getKey(), new HashSet<>(entry.getValue()));
                         }
                     }
 
-                    // Add predecessor's definitions
-                    for (String var : defs.get(predLabel)) {
+                    // kill & gen
+                    if (defs.containsKey(predLabel)) {
+                        for (String var : defs.get(predLabel)) {
+                            // since new def, we update definition of x to new definition
+                            Set<String> newDef = new HashSet<>();
+                            newDef.add(predLabel);
+                            predOut.put(var, newDef);
+                        }
+                    }
+
+                    // merge
+                    for (Map.Entry<String, Set<String>> entry : predOut.entrySet()) {
+                        String var = entry.getKey();
                         newReaching.putIfAbsent(var, new HashSet<>());
-                        newReaching.get(var).clear();
-                        newReaching.get(var).add(predLabel);
+                        newReaching.get(var).addAll(entry.getValue());
                     }
                 }
 
                 reaching.put(label, newReaching);
-
+                // nothing changed then exit
                 if (!mapsEqual(oldReaching, newReaching)) {
                     changed = true;
                 }
