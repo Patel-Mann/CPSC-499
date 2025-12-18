@@ -1,5 +1,8 @@
 ## Termanology
 1. Forward Slice => All statements that could be affected if you change a given statement.
+2. AIS = Actualy Impacted Set (Manully calcualte the expected outcome)
+3. EIS = Estimated Impacted Set (The set extracted from the outcome of the program)
+
 
 ### Run
 ```bash
