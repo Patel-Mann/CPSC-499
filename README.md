@@ -19,8 +19,24 @@ chmod +x run.sh
 AIS = {3, 4, 5, 6}
 
 ```bash
-TODO:
+=== Impact Analysis for Line 3 ===
+
+Statement(s) at line 3:
+  1: int x = 5 ;
+
+=== IMPACTED LINES ===
+  Line 3
+  Line 4
+  Line 5
+  Line 6
+
+Total: 4 lines impacted
 ```
+1. TP: {3, 4, 5, 6} |TP| = 4
+2. FP: {} |FP| = 0
+3. FN: {} |FN| = 0
+4. TN: {} |TN| = 0
+
 
 ### Line 4 (int y = x + 2;)
 AIS = {4,5,6}
@@ -38,10 +54,10 @@ Statement(s) at line 4:
 
 Total: 3 lines impacted
 ```
-
-
-
-
+1. TP: {4, 5, 6} |TP| = 3
+2. FP: {} |FP| = 0
+3. FN: {} |FN| = 0
+4. TN: {} |TN| = 0
 
 ***
 
@@ -62,42 +78,147 @@ Statement(s) at line 5:
 
 Total: 3 lines impacted
 ```
-TP: {5, 8, 9} |TP| = 3
-FP: {}        |FP| = 0
-FN: {6}       |FN| = 1
-Precision: 3 / (3 + 0) = 3/3 = 1.00 (100%)
-Recall: 3 / (3 + 1) = 3/4 = 0.75 (75%)
-Analysis:
-- Perfect precision (no false alarms)
-- Missed line 6 (the assignment inside the if-block)
-- UNDER-APPROXIMATION
+1. TP: {5, 8, 9} |TP| = 3
+2. FP: {} |FP| = 0
+3. FN: {6} |FN| = 1
+4. TN: {} |TN| = 0
 
 ### Change at Line 3 (int x = 10;)
 AIS = {3, 5, 6, 8, 9}
+```bash
+=== Impact Analysis for Line 3 ===
+
+Statement(s) at line 3:
+  1: int x = 10 ;
+
+=== IMPACTED LINES ===
+  Line 3
+  Line 5
+  Line 6
+  Line 8
+  Line 9
+
+Total: 5 lines impacted
+```
+1. TP: {3, 5, 6, 8, 9} |TP| = 5
+2. FP: {} |FP| = 0
+3. FN: {} |FN| = 0
+4. TN: {} |TN| = 0
+
 
 ***
 
 ## Test3 Simple Loop
 ### Change at Line 3 (int sum = 0;)
 AIS = {3, 6, 8}
+```Bash
+=== Impact Analysis for Line 3 ===
+
+Statement(s) at line 3:
+  1: int sum = 0 ;
+
+=== IMPACTED LINES ===
+  Line 3
+  Line 6
+  Line 8
+
+Total: 3 lines impacted
+```
+1. TP: {3, 6, 8} |TP| = 3
+2. FP: {} |FP| = 0
+3. FN: {} |FN| = 0
+4. TN: {} |TN| = 0
 
 ### Change at Line 5 (for loop heading)
 AIS = {5, 6, 8}
+```Bash
+=== Impact Analysis for Line 5 ===
+
+Statement(s) at line 5:
+  3: for ( i = 0 ; i < 5 ; i ++ )
+  4: block
+
+=== IMPACTED LINES ===
+  Line 5
+  Line 6
+  Line 8
+
+Total: 3 lines impacted
+```
+1. TP: {5, 6, 8} |TP| = 3
+2. FP: {} |FP| = 0
+3. FN: {} |FN| = 0
+4. TN: {} |TN| = 0
 
 ***
 
 ## Test4 If-Else Branch
 ### Change at Line 5 (if (x > 5))
 AIS = {5, 6, 8, 10, 11}
+```Bash
+=== Impact Analysis for Line 5 ===
+
+Statement(s) at line 5:
+  4: block
+  3: if ( x > 5 )
+
+=== IMPACTED LINES ===
+  Line 5
+  Line 6
+  Line 7
+  Line 8
+  Line 10
+  Line 11
+
+Total: 6 lines impacted
+```
+1. TP: {5, 6, 7, 8, 10, 11} |TP| = 6
+2. FP: {} |FP| = 0
+3. FN: {7} |FN| = 1
+4. TN: {} |TN| = 0
 
 ### Change at Line 6 (y = x + 10;)
 AIS = {6, 10, 11}
+```bash
+=== Impact Analysis for Line 6 ===
+
+Statement(s) at line 6:
+  5: y = x + 10 ;
+
+=== IMPACTED LINES ===
+  Line 6
+
+Total: 1 lines impacted
+```
+1. TP: {6} |TP| = 1
+2. FP: {} |FP| = 0
+3. FN: {10, 11} |FN| = 2
+4. TN: {} |TN| = 0
 
 ***
 
 ## Test5 Multiple Uses va
 ### Change at Line 3 (int a = 5;)
 AIS = {3, 4, 5, 6, 7}
+```Bash
+=== Impact Analysis for Line 3 ===
+
+Statement(s) at line 3:
+  1: int a = 5 ;
+
+=== IMPACTED LINES ===
+  Line 3
+  Line 4
+  Line 5
+  Line 6
+  Line 7
+
+Total: 5 lines impacted
+```
+1. TP: {3, 4, 5, 6, 7} |TP| = 5
+2. FP: {} |FP| = 0
+3. FN: {} |FN| = 0
+4. TN: {} |TN| = 0
 
 ### Change at Line 4 (int b = a + 2;)
 AIS = {4, 6, 7}
