@@ -6,9 +6,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Simple Program Dependence Graph (PDG)
- * Computes control and data dependencies for a CFG
- */
+* Implementation notes:
+* - Control dependencies computed via iterative reachability analysis
+* - Data dependencies computed via reaching definitions analysis
+* - Support Java 1.4 syntax with simple pattern matching
+*
+*/
 public class PDG {
 
     private ControlFlowGraph cfg;
